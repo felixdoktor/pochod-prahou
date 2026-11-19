@@ -462,7 +462,6 @@
 
 <script>
     const FIREBASE_URL = "https://pochod-55bcd-default-rtdb.europe-west1.firebasedatabase.app";
-    // Sem můžeš vložit přímý odkaz na trasu z Mapy.cz:
     const ROUTE_URL = "https://mapy.cz";
 
     const DEFAULT_STOPS = [
@@ -497,12 +496,48 @@
         });
         window.addEventListener("offline", updateOfflineBanner);
 
+        // Kontrola při návratu na záložku / stránku (např. po smazání v adminu)
+        document.addEventListener("visibilitychange", async () => {
+            if (!document.hidden && currentUser && navigator.onLine) {
+                await verifyCurrentUserExists();
+            }
+        });
+
         const savedUser = localStorage.getItem(USER_KEY);
         if (savedUser) {
             currentUser = JSON.parse(savedUser);
             await showApp();
         }
     };
+
+    function forceResetLocalSession(message) {
+        localStorage.removeItem(USER_KEY);
+        const q = getOfflineQueue().filter(op => op.userId !== (currentUser && currentUser.id));
+        setOfflineQueue(q);
+        currentUser = null;
+        document.getElementById("appSection").classList.add("hidden");
+        document.getElementById("loginSection").classList.remove("hidden");
+        document.getElementById("logoutBtn").classList.add("hidden");
+        document.getElementById("userDisplay").textContent = "Nepřihlášen";
+        if (message) {
+            showToast(message);
+        }
+    }
+
+    async function verifyCurrentUserExists() {
+        if (!currentUser || !navigator.onLine) return true;
+        try {
+            const res = await fetch(`${FIREBASE_URL}/users/${currentUser.id}.json`);
+            const userRecord = await res.json();
+            if (!userRecord || userRecord.deletedAt) {
+                forceResetLocalSession("Tvůj účet byl správcem smazán. Přihlas se znovu.");
+                return false;
+            }
+            return true;
+        } catch {
+            return true;
+        }
+    }
 
     function getOfflineQueue() {
         try {
@@ -544,6 +579,9 @@
             showToast("Stále není připojení k internetu.");
             return;
         }
+        const ok = await verifyCurrentUserExists();
+        if (!ok) return;
+
         const q = getOfflineQueue();
         if (!q.length) return;
 
@@ -571,7 +609,7 @@
         const t = document.getElementById("toast");
         t.textContent = msg;
         t.classList.add("show");
-        setTimeout(() => t.classList.remove("show"), 2600);
+        setTimeout(() => t.classList.remove("show"), 2800);
     }
 
     function sanitizeId(name) {
@@ -596,7 +634,7 @@
         try {
             const res = await fetch(`${FIREBASE_URL}/users/${userId}.json`);
             const existing = await res.json();
-            if (existing) {
+            if (existing && !existing.deletedAt) {
                 if (existing.pin && existing.pin !== pin) {
                     alert("Tento účastník už existuje a má nastavený jiný PIN.");
                     return;
@@ -608,6 +646,7 @@
                     });
                 }
             } else {
+                // Nový účet (nebo nově vytvořený po předchozím smazání)
                 await fetch(`${FIREBASE_URL}/users/${userId}.json`, {
                     method: "PUT",
                     body: JSON.stringify({ name: name, pin: pin, ratings: {} })
@@ -624,16 +663,14 @@
 
     function logout() {
         if (confirm("Opravdu se chceš odhlásit? Na tomto zařízení se uložené přihlášení smaže.")) {
-            localStorage.removeItem(USER_KEY);
-            currentUser = null;
-            document.getElementById("appSection").classList.add("hidden");
-            document.getElementById("loginSection").classList.remove("hidden");
-            document.getElementById("logoutBtn").classList.add("hidden");
-            document.getElementById("userDisplay").textContent = "Nepřihlášen";
+            forceResetLocalSession("Byl jsi odhlášen.");
         }
     }
 
     async function showApp() {
+        const exists = await verifyCurrentUserExists();
+        if (!exists) return;
+
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("appSection").classList.remove("hidden");
         document.getElementById("logoutBtn").classList.remove("hidden");
@@ -644,6 +681,7 @@
         }
         await fetchStops();
         await fetchData();
+        if (!currentUser) return;
         renderMyRatings();
     }
 
@@ -672,30 +710,43 @@
     async function fetchData() {
         try {
             const res = await fetch(`${FIREBASE_URL}/users.json`);
-            const serverData = (await res.json()) || {};
-            allData = serverData;
+            const rawUsers = (await res.json()) || {};
 
-            // Aplikace neodeslaných offline změn do lokálního náhledu
+            // Odfiltrujeme smazané uživatele
+            const activeUsers = {};
+            Object.entries(rawUsers).forEach(([uId, uVal]) => {
+                if (uVal && !uVal.deletedAt) {
+                    activeUsers[uId] = uVal;
+                }
+            });
+
+            if (currentUser && navigator.onLine && !activeUsers[currentUser.id]) {
+                forceResetLocalSession("Tvůj účet byl správcem smazán. Přihlas se znovu.");
+                return;
+            }
+
+            allData = activeUsers;
+
             const q = getOfflineQueue();
             q.forEach(op => {
+                if (!allData[op.userId]) return;
                 if (op.type === "save_stop") {
-                    if (!allData[op.userId]) allData[op.userId] = { name: currentUser.name, ratings: {} };
                     if (!allData[op.userId].ratings) allData[op.userId].ratings = {};
                     allData[op.userId].ratings[op.stopId] = op.body;
                 } else if (op.type === "delete_stop") {
-                    if (allData[op.userId] && allData[op.userId].ratings) {
+                    if (allData[op.userId].ratings) {
                         delete allData[op.userId].ratings[op.stopId];
                     }
                 }
             });
 
-            if (!allData[currentUser.id]) {
+            if (currentUser && !allData[currentUser.id]) {
                 allData[currentUser.id] = { name: currentUser.name, ratings: {} };
             }
             lastUpdatedTime = new Date();
             updateRefreshLabel();
         } catch (e) {
-            if (!allData[currentUser.id]) {
+            if (currentUser && !allData[currentUser.id]) {
                 allData[currentUser.id] = { name: currentUser.name, ratings: {} };
             }
             showToast("Nepodařilo se načíst čerstvá data ze serveru.");
@@ -727,6 +778,7 @@
     }
 
     function renderMyRatings(nextHighlightId = null) {
+        if (!currentUser) return;
         const container = document.getElementById("myRatingsView");
         const myRatings = (allData[currentUser.id] && allData[currentUser.id].ratings) || {};
         const highlightId = nextHighlightId || findNextUnfilledStopId(myRatings);
@@ -819,6 +871,8 @@
     }
 
     async function saveStop(stopId) {
+        if (!(await verifyCurrentUserExists())) return;
+
         const stopObj = stopsList.find(s => s.id === stopId);
         const rawCena = document.getElementById(`${stopId}_cena`).value;
         const cenaVal = rawCena !== "" ? Number(rawCena) : (stopObj && stopObj.beerPrice ? Number(stopObj.beerPrice) : null);
@@ -858,7 +912,6 @@
         const nextId = findNextUnfilledStopId(allData[currentUser.id].ratings, stopId);
         renderMyRatings(nextId);
 
-        // Sbalíme uloženou kartu a posuneme se na další nevyplněnou
         const savedCard = document.getElementById(`card_${stopId}`);
         if (savedCard) savedCard.classList.remove("open");
 
@@ -871,6 +924,7 @@
     }
 
     async function clearStopRating(stopId) {
+        if (!(await verifyCurrentUserExists())) return;
         if (!confirm("Opravdu chceš vymazat své hodnocení u této zastávky?")) return;
 
         if (allData[currentUser.id] && allData[currentUser.id].ratings) {
@@ -903,6 +957,7 @@
             document.getElementById("myRatingsView").classList.remove("hidden");
             document.getElementById("allResultsView").classList.add("hidden");
             await fetchStops();
+            await fetchData();
             renderMyRatings();
         } else {
             document.getElementById("myRatingsView").classList.add("hidden");
@@ -947,7 +1002,7 @@
     }
 
     function renderLeaderboard() {
-        const users = Object.values(allData);
+        const users = Object.values(allData).filter(u => u && !u.deletedAt);
         let totalBeersAll = 0;
         let totalSpendAll = 0;
         let drinkerStats = [];
@@ -1046,11 +1101,8 @@
             };
         });
 
-        // Řazení podle zvoleného žebříčku
         const sortedStops = [...stopResults].sort((a, b) => {
-            if (currentSortMode === "beer") {
-                return b.beerAvg - a.beerAvg;
-            }
+            if (currentSortMode === "beer") return b.beerAvg - a.beerAvg;
             if (currentSortMode === "expensive") {
                 const pa = a.priceAvg !== null ? a.priceAvg : -1;
                 const pb = b.priceAvg !== null ? b.priceAvg : -1;
@@ -1061,9 +1113,7 @@
                 const pb = b.priceAvg !== null ? b.priceAvg : 999999;
                 return pa - pb;
             }
-            if (currentSortMode === "most_beers") {
-                return b.totalPocet - a.totalPocet;
-            }
+            if (currentSortMode === "most_beers") return b.totalPocet - a.totalPocet;
             return b.overallAvg - a.overallAvg;
         });
 
