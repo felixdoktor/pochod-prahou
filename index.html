@@ -11,6 +11,7 @@
             --accent-hover: #b45309;
             --bg: #f1f5f9;
             --card: #ffffff;
+            --train-bg: #e2e8f0;
             --text: #0f172a;
             --muted: #64748b;
             --border: #cbd5e1;
@@ -19,29 +20,62 @@
         }
 
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 40px; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 48px; }
 
         header {
             background: var(--primary);
             color: white;
-            padding: 16px;
+            padding: 14px 16px;
             text-align: center;
             position: sticky;
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        header h1 { margin: 0; font-size: 1.25rem; }
-        header .sub { font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; display: flex; justify-content: center; gap: 12px; align-items: center; flex-wrap: wrap; }
+        header h1 { margin: 0; font-size: 1.2rem; }
+        header .sub {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-top: 6px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        header a.route-link {
+            color: #fbbf24;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
 
-        .container { max-width: 700px; margin: 0 auto; padding: 12px; }
+        .container { max-width: 720px; margin: 0 auto; padding: 12px; }
+
+        .offline-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
 
         .login-box {
             background: var(--card);
             padding: 24px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-top: 30px;
+            margin-top: 24px;
             text-align: center;
         }
         .login-box input {
@@ -56,7 +90,7 @@
         .tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             background: #e2e8f0;
             padding: 4px;
             border-radius: 10px;
@@ -85,7 +119,20 @@
             margin-bottom: 12px;
             border: 1px solid var(--border);
             overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
+        .stop-card.train-stop {
+            background: var(--train-bg);
+            border-color: #cbd5e1;
+        }
+        .stop-card.train-stop .stop-header {
+            background: #dbe2ea;
+        }
+        .stop-card.next-up {
+            border: 2px solid var(--accent);
+            box-shadow: 0 3px 10px rgba(217, 119, 6, 0.16);
+        }
+
         .stop-header {
             padding: 14px 16px;
             display: flex;
@@ -93,10 +140,31 @@
             align-items: center;
             cursor: pointer;
             background: #f8fafc;
+            gap: 10px;
         }
-        .stop-title { font-weight: 700; font-size: 1.05rem; }
-        .stop-time { color: var(--danger); font-weight: 700; font-size: 0.9rem; margin-left: 6px; }
+        .stop-thumb {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+        .stop-title { font-weight: 700; font-size: 1.02rem; }
+        .stop-time { color: var(--danger); font-weight: 700; font-size: 0.88rem; margin-left: 6px; }
+        .stop-next-tag {
+            display: inline-block;
+            background: #fef3c7;
+            color: #b45309;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 5px;
+            margin-left: 6px;
+            text-transform: uppercase;
+        }
         .stop-address { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+        .stop-address a { color: #0284c7; text-decoration: none; font-weight: 600; margin-left: 6px; }
         .badge {
             padding: 4px 8px;
             border-radius: 999px;
@@ -112,8 +180,17 @@
             padding: 16px;
             border-top: 1px solid var(--border);
             display: none;
+            background: var(--card);
         }
         .stop-card.open .stop-body { display: block; }
+
+        .stop-banner-img {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
 
         .form-grid {
             display: grid;
@@ -121,13 +198,45 @@
             gap: 12px;
         }
         .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+        .form-group label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
         .form-group select, .form-group input {
             padding: 10px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 1rem;
             background: white;
+            width: 100%;
+        }
+
+        .stepper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .step-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #f1f5f9;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .step-btn:active { background: #cbd5e1; }
+        .stepper input { text-align: center; font-weight: 700; }
+
+        .hint-text {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 3px;
         }
 
         .btn {
@@ -140,12 +249,28 @@
             font-size: 1rem;
             cursor: pointer;
             width: 100%;
-            margin-top: 14px;
         }
         .btn:hover { background: var(--accent-hover); }
+        .btn-sm {
+            padding: 7px 10px;
+            font-size: 0.82rem;
+            width: auto;
+        }
+        .btn-danger-outline {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+        }
         .btn-outline {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.35);
             color: white;
             padding: 4px 8px;
             border-radius: 6px;
@@ -153,11 +278,24 @@
             cursor: pointer;
         }
 
+        .results-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .refresh-meta { font-size: 0.78rem; color: var(--muted); }
+
         .stats-summary {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+        }
+        @media (min-width: 520px) {
+            .stats-summary { grid-template-columns: repeat(4, 1fr); }
         }
         .stat-box {
             background: var(--card);
@@ -166,8 +304,32 @@
             text-align: center;
             border: 1px solid var(--border);
         }
-        .stat-val { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
-        .stat-lbl { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+        .stat-val { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+        .stat-lbl { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+
+        .lb-filters {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+        .chip-btn {
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .chip-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
 
         .result-card {
             background: var(--card);
@@ -176,21 +338,36 @@
             margin-bottom: 12px;
             border: 1px solid var(--border);
         }
-        .result-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-        .result-score { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+        .result-card.train-stop {
+            background: #e9eef3;
+        }
+        .result-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; gap: 8px; }
+        .result-score { font-size: 1.15rem; font-weight: 800; color: var(--accent); white-space: nowrap; }
         .metrics-row {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             margin-bottom: 10px;
         }
         .metric-pill { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 8px; }
+
+        .notes-box {
+            background: #fffbeb;
+            border-left: 3px solid var(--accent);
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
+        }
+        .note-item { margin-bottom: 4px; }
+        .note-item:last-child { margin-bottom: 0; }
+        .note-meta { color: var(--muted); font-size: 0.72rem; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 8px; }
         th, td { padding: 6px 4px; text-align: center; border-bottom: 1px solid #e2e8f0; }
         th:first-child, td:first-child { text-align: left; font-weight: 600; }
-        th { color: var(--muted); font-size: 0.7rem; }
+        th { color: var(--muted); font-size: 0.68rem; }
 
         footer {
             text-align: center;
@@ -200,7 +377,7 @@
         footer a {
             color: var(--muted);
             text-decoration: none;
-            opacity: 0.7;
+            opacity: 0.75;
         }
         footer a:hover { opacity: 1; text-decoration: underline; }
 
@@ -209,6 +386,7 @@
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: #0f172a; color: white; padding: 10px 20px; border-radius: 999px;
             font-size: 0.9rem; font-weight: 600; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 200;
+            max-width: 90%; text-align: center;
         }
         #toast.show { opacity: 1; }
     </style>
@@ -219,20 +397,30 @@
     <h1>🍺 Pochod Prahou 21. 11. 2026</h1>
     <div class="sub">
         <span id="userDisplay">Nepřihlášen</span>
+        <a class="route-link" id="routeLink" href="https://mapy.cz" target="_blank" rel="noopener">🗺️ Trasa v mapě</a>
         <button id="logoutBtn" class="btn-outline hidden" onclick="logout()">Změnit jméno</button>
     </div>
 </header>
 
 <div class="container">
 
+    <div id="offlineBanner" class="offline-banner hidden">
+        <span id="offlineText">⚠️ Jsi offline – změny se uloží a odešlou po obnovení sítě.</span>
+        <button class="btn btn-sm" onclick="flushOfflineQueue()">Odeslat nyní</button>
+    </div>
+
+    <!-- PŘIHLÁŠENÍ -->
     <div id="loginSection" class="login-box">
         <h2>Vítej na pochodu!</h2>
-        <p style="color: var(--muted); font-size: 0.9rem;">Zadej své jméno (nebo přezdívku), pod kterým budeš hodnotit. Prohlížeč si tě zapamatuje po celý den.</p>
+        <p style="color: var(--muted); font-size: 0.9rem;">
+            Zadej své jméno a 4místný PIN. Prohlížeč si tě na tomto zařízení zapamatuje po celý den.
+        </p>
         <input type="text" id="usernameInput" placeholder="Tvé jméno (např. Honza)" maxlength="20">
-        <input type="tel" id="pinInput" placeholder="Volitelný 4místný PIN (proti přepsání)" maxlength="4">
+        <input type="tel" id="pinInput" placeholder="4místný PIN (např. 1234)" maxlength="4" inputmode="numeric">
         <button class="btn" onclick="login()">Vstoupit do hodnocení</button>
     </div>
 
+    <!-- HLAVNÍ APLIKACE -->
     <div id="appSection" class="hidden">
         <div class="tabs">
             <button class="tab-btn active" id="tabMy" onclick="switchTab('my')">✍️ Moje hodnocení</button>
@@ -242,10 +430,24 @@
         <div id="myRatingsView">Načítám zastávky...</div>
 
         <div id="allResultsView" class="hidden">
+            <div class="results-toolbar">
+                <span class="refresh-meta" id="lastRefreshText">Poslední aktualizace: –</span>
+                <button class="btn btn-sm" onclick="refreshAllResults(true)">🔄 Obnovit data</button>
+            </div>
+
             <div class="stats-summary" id="globalStats"></div>
-            <h3 style="margin: 16px 0 8px;">Pořadí zastávek</h3>
+
+            <h3 style="margin: 14px 0 6px;">Žebříčky zastávek</h3>
+            <div class="lb-filters">
+                <button class="chip-btn active" data-sort="overall" onclick="setSortMode('overall', this)">Celkové pořadí</button>
+                <button class="chip-btn" data-sort="beer" onclick="setSortMode('beer', this)">🍺 Nejlepší pivo</button>
+                <button class="chip-btn" data-sort="expensive" onclick="setSortMode('expensive', this)">💸 Nejdražší pivo</button>
+                <button class="chip-btn" data-sort="cheapest" onclick="setSortMode('cheapest', this)">💰 Nejlevnější pivo</button>
+                <button class="chip-btn" data-sort="most_beers" onclick="setSortMode('most_beers', this)">🍻 Nejvíce piv</button>
+            </div>
             <div id="leaderboardList"></div>
-            <h3 style="margin: 20px 0 8px;">🍻 Žebříček pivařů</h3>
+
+            <h3 style="margin: 20px 0 8px;">🍻 Žebříček pivařů a útraty</h3>
             <div class="result-card" id="drinkersList"></div>
         </div>
     </div>
@@ -260,39 +462,116 @@
 
 <script>
     const FIREBASE_URL = "https://pochod-55bcd-default-rtdb.europe-west1.firebasedatabase.app";
+    // Sem můžeš vložit přímý odkaz na trasu z Mapy.cz:
+    const ROUTE_URL = "https://mapy.cz";
 
-    // Výchozí zastávky (nahrají se do DB při prvním spuštění)
     const DEFAULT_STOPS = [
-        { id: "1_jelinkova", order: 1, num: "1.", name: "Jelínkova Plzeňská Pivnice", time: "10:00", addr: "Charvátova 33/1, Praha 1", isTrain: false },
-        { id: "2_hroch", order: 2, num: "2.", name: "U hrocha", time: "12:00", addr: "Thunovská 178/10, Malá Strana", isTrain: false },
-        { id: "3_glaubici", order: 3, num: "3.", name: "Restaurant u Glaubiců", time: "", addr: "Malostranské nám. 266/5, Praha 1", isTrain: false },
-        { id: "4_tygr", order: 4, num: "4.", name: "U Zlatého tygra", time: "15:00", addr: "Husova 228/17, Staré Město", isTrain: false },
-        { id: "5_slon", order: 5, num: "5.", name: "Pivnice U Zlatého slona", time: "", addr: "Havelská 508/9, Staré Město", isTrain: false },
-        { id: "6_rarasci", order: 6, num: "6.", name: "Výčep U Rarášků", time: "", addr: "Mikulandská 135/7, Praha 1", isTrain: false },
-        { id: "7_kruh", order: 7, num: "7.", name: "Hospoda U Kruhu", time: "", addr: "Palackého 723/6, Nové Město", isTrain: false },
-        { id: "8_posta", order: 8, num: "8.", name: "Restaurace U Staré Pošty", time: "", addr: "Opletalova 1964/17, Nové Město", isTrain: false },
-        { id: "9_bredovsky", order: 9, num: "9.", name: "Restaurace Bredovský dvůr", time: "", addr: "Politických vězňů 935/13, Praha 1", isTrain: false },
-        { id: "10_vlak_tam", order: 10, num: "10a.", name: "CESTA VLAKEM – TAM", time: "", addr: "Hodnocení cesty na start", isTrain: true },
-        { id: "10_vlak_zpet", order: 11, num: "10b.", name: "CESTA VLAKEM – ZPĚT", time: "", addr: "Hodnocení cesty domů", isTrain: true }
+        { id: "1_jelinkova", order: 1, num: "1.", name: "Jelínkova Plzeňská Pivnice", time: "10:00", addr: "Charvátova 33/1, Praha 1", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "2_hroch", order: 2, num: "2.", name: "U hrocha", time: "12:00", addr: "Thunovská 178/10, Malá Strana", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "3_glaubici", order: 3, num: "3.", name: "Restaurant u Glaubiců", time: "", addr: "Malostranské nám. 266/5, Praha 1", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "4_tygr", order: 4, num: "4.", name: "U Zlatého tygra", time: "15:00", addr: "Husova 228/17, Staré Město", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "5_slon", order: 5, num: "5.", name: "Pivnice U Zlatého slona", time: "", addr: "Havelská 508/9, Staré Město", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "6_rarasci", order: 6, num: "6.", name: "Výčep U Rarášků", time: "", addr: "Mikulandská 135/7, Praha 1", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "7_kruh", order: 7, num: "7.", name: "Hospoda U Kruhu", time: "", addr: "Palackého 723/6, Nové Město", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "8_posta", order: 8, num: "8.", name: "Restaurace U Staré Pošty", time: "", addr: "Opletalova 1964/17, Nové Město", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "9_bredovsky", order: 9, num: "9.", name: "Restaurace Bredovský dvůr", time: "", addr: "Politických vězňů 935/13, Praha 1", beerPrice: null, imageUrl: "", isTrain: false },
+        { id: "10_vlak_tam", order: 10, num: "10a.", name: "CESTA VLAKEM – TAM", time: "", addr: "Hodnocení cesty na start", beerPrice: null, imageUrl: "", isTrain: true },
+        { id: "10_vlak_zpet", order: 11, num: "10b.", name: "CESTA VLAKEM – ZPĚT", time: "", addr: "Hodnocení cesty domů", beerPrice: null, imageUrl: "", isTrain: true }
     ];
+
+    const OFFLINE_QUEUE_KEY = "pochod_offline_queue_v1";
+    const USER_KEY = "pochod_user_v1";
 
     let stopsList = [];
     let currentUser = null;
     let allData = {};
+    let currentSortMode = "overall";
+    let lastUpdatedTime = null;
 
-    window.onload = () => {
-        const savedUser = localStorage.getItem("pochod_user");
+    window.onload = async () => {
+        document.getElementById("routeLink").href = ROUTE_URL;
+        updateOfflineBanner();
+        window.addEventListener("online", async () => {
+            updateOfflineBanner();
+            await flushOfflineQueue();
+        });
+        window.addEventListener("offline", updateOfflineBanner);
+
+        const savedUser = localStorage.getItem(USER_KEY);
         if (savedUser) {
             currentUser = JSON.parse(savedUser);
-            showApp();
+            await showApp();
         }
     };
+
+    function getOfflineQueue() {
+        try {
+            return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
+        } catch {
+            return [];
+        }
+    }
+
+    function setOfflineQueue(q) {
+        localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(q));
+        updateOfflineBanner();
+    }
+
+    function enqueueOfflineOp(op) {
+        const q = getOfflineQueue();
+        q.push(op);
+        setOfflineQueue(q);
+    }
+
+    function updateOfflineBanner() {
+        const q = getOfflineQueue();
+        const banner = document.getElementById("offlineBanner");
+        const text = document.getElementById("offlineText");
+        if (!navigator.onLine || q.length > 0) {
+            banner.classList.remove("hidden");
+            if (!navigator.onLine) {
+                text.textContent = `⚠️ Jsi offline (${q.length} čekajících změn). Odešlou se po připojení.`;
+            } else {
+                text.textContent = `⏳ Čeká ${q.length} neodeslaných změn z offline režimu.`;
+            }
+        } else {
+            banner.classList.add("hidden");
+        }
+    }
+
+    async function flushOfflineQueue() {
+        if (!navigator.onLine) {
+            showToast("Stále není připojení k internetu.");
+            return;
+        }
+        const q = getOfflineQueue();
+        if (!q.length) return;
+
+        const remaining = [];
+        for (const op of q) {
+            try {
+                const res = await fetch(op.url, {
+                    method: op.method,
+                    body: op.body ? JSON.stringify(op.body) : undefined
+                });
+                if (!res.ok) remaining.push(op);
+            } catch {
+                remaining.push(op);
+            }
+        }
+        setOfflineQueue(remaining);
+        if (remaining.length === 0) {
+            showToast("✓ Všechny offline změny odeslány!");
+            await fetchData();
+            renderMyRatings();
+        }
+    }
 
     function showToast(msg) {
         const t = document.getElementById("toast");
         t.textContent = msg;
         t.classList.add("show");
-        setTimeout(() => t.classList.remove("show"), 2500);
+        setTimeout(() => t.classList.remove("show"), 2600);
     }
 
     function sanitizeId(name) {
@@ -302,37 +581,50 @@
     async function login() {
         const name = document.getElementById("usernameInput").value.trim();
         const pin = document.getElementById("pinInput").value.trim();
+
         if (!name) {
             alert("Zadej prosím své jméno.");
             return;
         }
+        if (!/^\d{4}$/.test(pin)) {
+            alert("Zadej prosím přesně 4místný číselný PIN (např. 1234).");
+            return;
+        }
+
         const userId = sanitizeId(name);
 
         try {
             const res = await fetch(`${FIREBASE_URL}/users/${userId}.json`);
             const existing = await res.json();
-            if (existing && existing.pin && existing.pin !== pin) {
-                alert("Tento účastník už existuje a má nastavený jiný PIN.");
-                return;
-            }
-            if (!existing) {
+            if (existing) {
+                if (existing.pin && existing.pin !== pin) {
+                    alert("Tento účastník už existuje a má nastavený jiný PIN.");
+                    return;
+                }
+                if (!existing.pin) {
+                    await fetch(`${FIREBASE_URL}/users/${userId}.json`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ pin: pin })
+                    });
+                }
+            } else {
                 await fetch(`${FIREBASE_URL}/users/${userId}.json`, {
-                    method: "PATCH",
-                    body: JSON.stringify({ name: name, pin: pin })
+                    method: "PUT",
+                    body: JSON.stringify({ name: name, pin: pin, ratings: {} })
                 });
             }
         } catch (e) {
-            console.error("Chyba spojení s DB:", e);
+            console.error("Chyba spojení při přihlášení:", e);
         }
 
         currentUser = { id: userId, name: name, pin: pin };
-        localStorage.setItem("pochod_user", JSON.stringify(currentUser));
-        showApp();
+        localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+        await showApp();
     }
 
     function logout() {
-        if (confirm("Opravdu se chceš odhlásit / přepnout jméno?")) {
-            localStorage.removeItem("pochod_user");
+        if (confirm("Opravdu se chceš odhlásit? Na tomto zařízení se uložené přihlášení smaže.")) {
+            localStorage.removeItem(USER_KEY);
             currentUser = null;
             document.getElementById("appSection").classList.add("hidden");
             document.getElementById("loginSection").classList.remove("hidden");
@@ -347,6 +639,9 @@
         document.getElementById("logoutBtn").classList.remove("hidden");
         document.getElementById("userDisplay").textContent = `Hodnotí: ${currentUser.name}`;
 
+        if (navigator.onLine && getOfflineQueue().length > 0) {
+            await flushOfflineQueue();
+        }
         await fetchStops();
         await fetchData();
         renderMyRatings();
@@ -357,32 +652,70 @@
             const res = await fetch(`${FIREBASE_URL}/stops.json`);
             const data = await res.json();
             if (!data) {
-                // Pokud v DB ještě zastávky nejsou, nahrajeme výchozí
                 const stopsObj = {};
                 DEFAULT_STOPS.forEach(s => stopsObj[s.id] = s);
-                await fetch(`${FIREBASE_URL}/stops.json`, {
-                    method: "PUT",
-                    body: JSON.stringify(stopsObj)
-                });
+                if (navigator.onLine) {
+                    await fetch(`${FIREBASE_URL}/stops.json`, {
+                        method: "PUT",
+                        body: JSON.stringify(stopsObj)
+                    });
+                }
                 stopsList = [...DEFAULT_STOPS];
             } else {
                 stopsList = Object.values(data).sort((a, b) => (a.order || 99) - (b.order || 99));
             }
         } catch (e) {
-            stopsList = [...DEFAULT_STOPS];
+            if (!stopsList.length) stopsList = [...DEFAULT_STOPS];
         }
     }
 
     async function fetchData() {
         try {
             const res = await fetch(`${FIREBASE_URL}/users.json`);
-            allData = (await res.json()) || {};
+            const serverData = (await res.json()) || {};
+            allData = serverData;
+
+            // Aplikace neodeslaných offline změn do lokálního náhledu
+            const q = getOfflineQueue();
+            q.forEach(op => {
+                if (op.type === "save_stop") {
+                    if (!allData[op.userId]) allData[op.userId] = { name: currentUser.name, ratings: {} };
+                    if (!allData[op.userId].ratings) allData[op.userId].ratings = {};
+                    allData[op.userId].ratings[op.stopId] = op.body;
+                } else if (op.type === "delete_stop") {
+                    if (allData[op.userId] && allData[op.userId].ratings) {
+                        delete allData[op.userId].ratings[op.stopId];
+                    }
+                }
+            });
+
             if (!allData[currentUser.id]) {
                 allData[currentUser.id] = { name: currentUser.name, ratings: {} };
             }
+            lastUpdatedTime = new Date();
+            updateRefreshLabel();
         } catch (e) {
-            showToast("Nepodařilo se načíst data ze serveru.");
+            if (!allData[currentUser.id]) {
+                allData[currentUser.id] = { name: currentUser.name, ratings: {} };
+            }
+            showToast("Nepodařilo se načíst čerstvá data ze serveru.");
         }
+    }
+
+    function updateRefreshLabel() {
+        const el = document.getElementById("lastRefreshText");
+        if (!el || !lastUpdatedTime) return;
+        el.textContent = `Aktualizováno: ${lastUpdatedTime.toLocaleTimeString("cs-CZ")}`;
+    }
+
+    function isStopFilled(r) {
+        if (!r) return false;
+        return Boolean(r.pivo || r.obsluha || r.prostredi || r.dojem || r.wc || r.pocet || r.note);
+    }
+
+    function findNextUnfilledStopId(myRatings, excludeStopId = null) {
+        const candidate = stopsList.find(s => s.id !== excludeStopId && !isStopFilled(myRatings[s.id]));
+        return candidate ? candidate.id : null;
     }
 
     function createScoreOptions(selectedVal) {
@@ -393,26 +726,40 @@
         return html;
     }
 
-    function renderMyRatings() {
+    function renderMyRatings(nextHighlightId = null) {
         const container = document.getElementById("myRatingsView");
         const myRatings = (allData[currentUser.id] && allData[currentUser.id].ratings) || {};
+        const highlightId = nextHighlightId || findNextUnfilledStopId(myRatings);
 
         container.innerHTML = stopsList.map(stop => {
             const r = myRatings[stop.id] || {};
-            const isDone = r.pivo || r.obsluha || r.prostredi || r.dojem || r.wc || r.pocet;
+            const isDone = isStopFilled(r);
+            const isNext = !isDone && stop.id === highlightId;
+            const effectiveCena = r.cena !== null && r.cena !== undefined && r.cena !== "" ? r.cena : (stop.beerPrice || "");
+            const mapQuery = encodeURIComponent(`${stop.name} ${stop.addr || "Praha"}`);
+            const mapUrl = `https://mapy.cz/?q=${mapQuery}`;
 
             return `
-            <div class="stop-card" id="card_${stop.id}">
+            <div class="stop-card ${stop.isTrain ? "train-stop" : ""} ${isNext ? "next-up" : ""}" id="card_${stop.id}">
                 <div class="stop-header" onclick="toggleCard('${stop.id}')">
-                    <div>
-                        <div class="stop-title">${stop.num ? stop.num + " " : ""}${stop.name} ${stop.time ? `<span class="stop-time">${stop.time}</span>` : ""}</div>
-                        <div class="stop-address">${stop.addr || ""}</div>
+                    ${stop.imageUrl ? `<img class="stop-thumb" src="${escapeAttr(stop.imageUrl)}" alt="${escapeAttr(stop.name)}" onerror="this.style.display='none'">` : ""}
+                    <div style="flex:1; min-width:0;">
+                        <div class="stop-title">
+                            ${stop.num ? stop.num + " " : ""}${escapeHtml(stop.name)}
+                            ${stop.time ? `<span class="stop-time">${escapeHtml(stop.time)}</span>` : ""}
+                            ${isNext ? `<span class="stop-next-tag">Na řadě</span>` : ""}
+                        </div>
+                        <div class="stop-address">
+                            ${stop.addr ? escapeHtml(stop.addr) : ""}
+                            ${!stop.isTrain ? `<a href="${mapUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📍 Mapa</a>` : ""}
+                        </div>
                     </div>
                     <span class="badge ${isDone ? "done" : ""}" id="badge_${stop.id}">
                         ${isDone ? "✓ Vyplněno" : "Nevyplněno"}
                     </span>
                 </div>
                 <div class="stop-body">
+                    ${stop.imageUrl ? `<img class="stop-banner-img" src="${escapeAttr(stop.imageUrl)}" alt="${escapeAttr(stop.name)}" onerror="this.style.display='none'">` : ""}
                     <div class="form-grid">
                         <div class="form-group">
                             <label>🍺 Pivo (1-10)</label>
@@ -436,17 +783,34 @@
                         </div>
                         <div class="form-group">
                             <label>💰 Cena piva (Kč)</label>
-                            <input type="number" id="${stop.id}_cena" placeholder="např. 62" value="${r.cena || ""}">
+                            <input type="number" id="${stop.id}_cena" placeholder="${stop.beerPrice ? "Dle admina: " + stop.beerPrice : "např. 62"}" value="${effectiveCena}">
+                            ${stop.beerPrice ? `<span class="hint-text">Předvyplněno adminem (${stop.beerPrice} Kč)</span>` : ""}
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
                             <label>🍻 Počet vypitých piv (ks)</label>
-                            <input type="number" step="0.5" id="${stop.id}_pocet" placeholder="např. 2" value="${r.pocet || ""}">
+                            <div class="stepper">
+                                <button type="button" class="step-btn" onclick="stepBeers('${stop.id}', -1)">−</button>
+                                <input type="number" id="${stop.id}_pocet" min="0" step="1" value="${r.pocet || 0}">
+                                <button type="button" class="step-btn" onclick="stepBeers('${stop.id}', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>💬 Poznámka / hláška ke zastávce</label>
+                            <input type="text" id="${stop.id}_note" maxlength="160" placeholder="např. super výčep, dlouhá fronta, hláška..." value="${escapeAttr(r.note || "")}">
                         </div>
                     </div>
-                    <button class="btn" onclick="saveStop('${stop.id}')">Uložit hodnocení</button>
+                    ${r.updatedAt ? `<div class="hint-text" style="margin-top:8px;">Naposledy uloženo: ${new Date(r.updatedAt).toLocaleTimeString("cs-CZ")}</div>` : ""}
+                    <button class="btn" style="margin-top:12px;" onclick="saveStop('${stop.id}')">Uložit hodnocení</button>
+                    ${isDone ? `<button class="btn-danger-outline" onclick="clearStopRating('${stop.id}')">🗑️ Vymazat hodnocení této zastávky</button>` : ""}
                 </div>
             </div>`;
         }).join("");
+    }
+
+    function stepBeers(stopId, delta) {
+        const input = document.getElementById(`${stopId}_pocet`);
+        const current = Number(input.value) || 0;
+        input.value = Math.max(0, current + delta);
     }
 
     function toggleCard(stopId) {
@@ -455,34 +819,80 @@
     }
 
     async function saveStop(stopId) {
+        const stopObj = stopsList.find(s => s.id === stopId);
+        const rawCena = document.getElementById(`${stopId}_cena`).value;
+        const cenaVal = rawCena !== "" ? Number(rawCena) : (stopObj && stopObj.beerPrice ? Number(stopObj.beerPrice) : null);
+
         const ratingObj = {
             pivo: Number(document.getElementById(`${stopId}_pivo`).value) || null,
             obsluha: Number(document.getElementById(`${stopId}_obsluha`).value) || null,
             prostredi: Number(document.getElementById(`${stopId}_prostredi`).value) || null,
             dojem: Number(document.getElementById(`${stopId}_dojem`).value) || null,
             wc: Number(document.getElementById(`${stopId}_wc`).value) || null,
-            cena: Number(document.getElementById(`${stopId}_cena`).value) || null,
-            pocet: Number(document.getElementById(`${stopId}_pocet`).value) || 0
+            cena: cenaVal,
+            pocet: Math.max(0, Number(document.getElementById(`${stopId}_pocet`).value) || 0),
+            note: document.getElementById(`${stopId}_note`).value.trim(),
+            updatedAt: new Date().toISOString()
         };
 
         if (!allData[currentUser.id]) allData[currentUser.id] = { name: currentUser.name, ratings: {} };
         if (!allData[currentUser.id].ratings) allData[currentUser.id].ratings = {};
         allData[currentUser.id].ratings[stopId] = ratingObj;
 
-        try {
-            await fetch(`${FIREBASE_URL}/users/${currentUser.id}/ratings/${stopId}.json`, {
-                method: "PUT",
-                body: JSON.stringify(ratingObj)
-            });
-            showToast("✓ Uloženo pro všechny!");
-        } catch (e) {
-            showToast("Chyba při ukládání!");
+        const url = `${FIREBASE_URL}/users/${currentUser.id}/ratings/${stopId}.json`;
+
+        if (!navigator.onLine) {
+            enqueueOfflineOp({ type: "save_stop", userId: currentUser.id, stopId, url, method: "PUT", body: ratingObj });
+            showToast("📦 Uloženo offline – odešle se po připojení.");
+        } else {
+            try {
+                const res = await fetch(url, { method: "PUT", body: JSON.stringify(ratingObj) });
+                if (!res.ok) throw new Error("HTTP error");
+                showToast("✓ Uloženo pro všechny!");
+            } catch (e) {
+                enqueueOfflineOp({ type: "save_stop", userId: currentUser.id, stopId, url, method: "PUT", body: ratingObj });
+                showToast("📦 Výpadek sítě – uloženo do fronty.");
+            }
         }
 
-        const badge = document.getElementById(`badge_${stopId}`);
-        badge.textContent = "✓ Vyplněno";
-        badge.classList.add("done");
-        document.getElementById(`card_${stopId}`).classList.remove("open");
+        const nextId = findNextUnfilledStopId(allData[currentUser.id].ratings, stopId);
+        renderMyRatings(nextId);
+
+        // Sbalíme uloženou kartu a posuneme se na další nevyplněnou
+        const savedCard = document.getElementById(`card_${stopId}`);
+        if (savedCard) savedCard.classList.remove("open");
+
+        if (nextId) {
+            const nextCard = document.getElementById(`card_${nextId}`);
+            if (nextCard) {
+                nextCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        }
+    }
+
+    async function clearStopRating(stopId) {
+        if (!confirm("Opravdu chceš vymazat své hodnocení u této zastávky?")) return;
+
+        if (allData[currentUser.id] && allData[currentUser.id].ratings) {
+            delete allData[currentUser.id].ratings[stopId];
+        }
+
+        const url = `${FIREBASE_URL}/users/${currentUser.id}/ratings/${stopId}.json`;
+
+        if (!navigator.onLine) {
+            enqueueOfflineOp({ type: "delete_stop", userId: currentUser.id, stopId, url, method: "DELETE", body: null });
+            showToast("📦 Smazáno offline – odešle se po připojení.");
+        } else {
+            try {
+                await fetch(url, { method: "DELETE" });
+                showToast("✓ Hodnocení zastávky vymazáno.");
+            } catch (e) {
+                enqueueOfflineOp({ type: "delete_stop", userId: currentUser.id, stopId, url, method: "DELETE", body: null });
+                showToast("📦 Uloženo do offline fronty.");
+            }
+        }
+
+        renderMyRatings();
     }
 
     async function switchTab(tab) {
@@ -492,89 +902,174 @@
         if (tab === "my") {
             document.getElementById("myRatingsView").classList.remove("hidden");
             document.getElementById("allResultsView").classList.add("hidden");
+            await fetchStops();
+            renderMyRatings();
         } else {
             document.getElementById("myRatingsView").classList.add("hidden");
             document.getElementById("allResultsView").classList.remove("hidden");
-            await fetchStops();
-            await fetchData();
-            renderLeaderboard();
+            await refreshAllResults(false);
         }
     }
 
+    async function refreshAllResults(notify) {
+        await fetchStops();
+        await fetchData();
+        renderLeaderboard();
+        if (notify) showToast("🔄 Data aktualizována.");
+    }
+
+    function setSortMode(mode, btnEl) {
+        currentSortMode = mode;
+        document.querySelectorAll(".chip-btn").forEach(b => b.classList.remove("active"));
+        if (btnEl) btnEl.classList.add("active");
+        renderLeaderboard();
+    }
+
     function avg(arr) {
-        const valid = arr.filter(v => v !== null && v !== undefined && v > 0);
+        const valid = arr.filter(v => v !== null && v !== undefined && !Number.isNaN(Number(v)) && Number(v) > 0);
         if (!valid.length) return null;
-        return (valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(1);
+        return valid.reduce((a, b) => a + Number(b), 0) / valid.length;
+    }
+
+    function fmt(val, dec = 1) {
+        if (val === null || val === undefined || Number.isNaN(Number(val))) return "–";
+        return Number(val).toFixed(dec);
+    }
+
+    function getEffectiveBeerPrice(r, stop) {
+        if (r && r.cena !== null && r.cena !== undefined && r.cena !== "" && Number(r.cena) > 0) {
+            return Number(r.cena);
+        }
+        if (stop && stop.beerPrice !== null && stop.beerPrice !== undefined && stop.beerPrice !== "" && Number(stop.beerPrice) > 0) {
+            return Number(stop.beerPrice);
+        }
+        return null;
     }
 
     function renderLeaderboard() {
         const users = Object.values(allData);
         let totalBeersAll = 0;
+        let totalSpendAll = 0;
         let drinkerStats = [];
 
         users.forEach(u => {
             let userBeers = 0;
+            let userSpend = 0;
             if (u.ratings) {
-                Object.values(u.ratings).forEach(r => {
-                    userBeers += Number(r.pocet || 0);
+                Object.entries(u.ratings).forEach(([sId, r]) => {
+                    const stop = stopsList.find(s => s.id === sId);
+                    const beers = Number(r.pocet || 0);
+                    const price = getEffectiveBeerPrice(r, stop);
+                    userBeers += beers;
+                    if (beers > 0 && price) {
+                        userSpend += beers * price;
+                    }
                 });
             }
             totalBeersAll += userBeers;
-            drinkerStats.push({ name: u.name, beers: userBeers });
+            totalSpendAll += userSpend;
+            drinkerStats.push({ name: u.name || "Účastník", beers: userBeers, spend: Math.round(userSpend) });
         });
 
         const stopResults = stopsList.map(stop => {
-            let pivo = [], obsluha = [], prostredi = [], dojem = [], wc = [], cena = [], pocet = 0;
+            let pivo = [], obsluha = [], prostredi = [], dojem = [], wc = [], ceny = [];
+            let pocet = 0;
+            let stopSpend = 0;
             let userRows = [];
+            let notes = [];
 
             users.forEach(u => {
                 const r = u.ratings && u.ratings[stop.id];
-                if (r) {
-                    if (r.pivo) pivo.push(r.pivo);
-                    if (r.obsluha) obsluha.push(r.obsluha);
-                    if (r.prostredi) prostredi.push(r.prostredi);
-                    if (r.dojem) dojem.push(r.dojem);
-                    if (r.wc) wc.push(r.wc);
-                    if (r.cena) cena.push(r.cena);
-                    if (r.pocet) pocet += Number(r.pocet);
+                if (!r) return;
 
-                    if (r.pivo || r.obsluha || r.prostredi || r.dojem || r.wc || r.pocet) {
-                        userRows.push(`
-                            <tr>
-                                <td>${u.name}</td>
-                                <td>${r.pivo || "-"}</td>
-                                <td>${r.obsluha || "-"}</td>
-                                <td>${r.prostredi || "-"}</td>
-                                <td>${r.dojem || "-"}</td>
-                                <td>${r.wc || "-"}</td>
-                                <td>${r.cena ? r.cena + " Kč" : "-"}</td>
-                                <td>${r.pocet || 0}</td>
-                            </tr>
-                        `);
-                    }
+                if (r.pivo) pivo.push(r.pivo);
+                if (r.obsluha) obsluha.push(r.obsluha);
+                if (r.prostredi) prostredi.push(r.prostredi);
+                if (r.dojem) dojem.push(r.dojem);
+                if (r.wc) wc.push(r.wc);
+
+                const effPrice = getEffectiveBeerPrice(r, stop);
+                if (effPrice) ceny.push(effPrice);
+
+                const beers = Number(r.pocet || 0);
+                pocet += beers;
+                if (beers > 0 && effPrice) {
+                    stopSpend += beers * effPrice;
+                }
+
+                if (r.note && r.note.trim()) {
+                    notes.push({
+                        author: u.name || "Účastník",
+                        text: r.note.trim(),
+                        time: r.updatedAt ? new Date(r.updatedAt).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" }) : ""
+                    });
+                }
+
+                if (isStopFilled(r)) {
+                    const rowSpend = beers > 0 && effPrice ? Math.round(beers * effPrice) + " Kč" : "-";
+                    const timeStr = r.updatedAt ? new Date(r.updatedAt).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" }) : "-";
+                    userRows.push(`
+                        <tr>
+                            <td>${escapeHtml(u.name || "Účastník")}</td>
+                            <td>${r.pivo || "-"}</td>
+                            <td>${r.obsluha || "-"}</td>
+                            <td>${r.prostredi || "-"}</td>
+                            <td>${r.dojem || "-"}</td>
+                            <td>${r.wc || "-"}</td>
+                            <td>${effPrice ? effPrice + " Kč" : "-"}</td>
+                            <td>${beers}</td>
+                            <td>${rowSpend}</td>
+                            <td>${timeStr}</td>
+                        </tr>
+                    `);
                 }
             });
 
             const allScores = [...pivo, ...obsluha, ...prostredi, ...dojem, ...wc];
-            const totalAvg = avg(allScores);
+            const overallAvg = avg(allScores);
+            const beerAvg = avg(pivo);
+            const priceAvg = avg(ceny);
 
             return {
                 stop,
-                totalAvg: totalAvg ? Number(totalAvg) : 0,
-                totalAvgText: totalAvg || "–",
-                avgPivo: avg(pivo) || "–",
-                avgObsluha: avg(obsluha) || "–",
-                avgProstredi: avg(prostredi) || "–",
-                avgDojem: avg(dojem) || "–",
-                avgWc: avg(wc) || "–",
-                avgCena: avg(cena) ? Math.round(avg(cena)) + " Kč" : "–",
+                overallAvg: overallAvg !== null ? overallAvg : -1,
+                beerAvg: beerAvg !== null ? beerAvg : -1,
+                priceAvg: priceAvg !== null ? priceAvg : null,
                 totalPocet: pocet,
-                userRows
+                stopSpend: Math.round(stopSpend),
+                avgObsluha: avg(obsluha),
+                avgProstredi: avg(prostredi),
+                avgDojem: avg(dojem),
+                avgWc: avg(wc),
+                userRows,
+                notes
             };
         });
 
-        const sortedStops = [...stopResults].sort((a, b) => b.totalAvg - a.totalAvg);
-        const bestPub = sortedStops.find(s => !s.stop.isTrain && s.totalAvg > 0);
+        // Řazení podle zvoleného žebříčku
+        const sortedStops = [...stopResults].sort((a, b) => {
+            if (currentSortMode === "beer") {
+                return b.beerAvg - a.beerAvg;
+            }
+            if (currentSortMode === "expensive") {
+                const pa = a.priceAvg !== null ? a.priceAvg : -1;
+                const pb = b.priceAvg !== null ? b.priceAvg : -1;
+                return pb - pa;
+            }
+            if (currentSortMode === "cheapest") {
+                const pa = a.priceAvg !== null ? a.priceAvg : 999999;
+                const pb = b.priceAvg !== null ? b.priceAvg : 999999;
+                return pa - pb;
+            }
+            if (currentSortMode === "most_beers") {
+                return b.totalPocet - a.totalPocet;
+            }
+            return b.overallAvg - a.overallAvg;
+        });
+
+        const bestPub = [...stopResults]
+            .filter(s => !s.stop.isTrain && s.overallAvg > 0)
+            .sort((a, b) => b.overallAvg - a.overallAvg)[0];
 
         document.getElementById("globalStats").innerHTML = `
             <div class="stat-box">
@@ -586,60 +1081,121 @@
                 <div class="stat-lbl">Vypitých piv</div>
             </div>
             <div class="stat-box">
-                <div class="stat-val">${bestPub ? bestPub.totalAvgText : "–"}</div>
-                <div class="stat-lbl">Top skóre</div>
+                <div class="stat-val">${Math.round(totalSpendAll)} Kč</div>
+                <div class="stat-lbl">Útrata za pivo</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">${bestPub ? fmt(bestPub.overallAvg) : "–"}</div>
+                <div class="stat-lbl">Top hospoda</div>
             </div>
         `;
 
-        document.getElementById("leaderboardList").innerHTML = sortedStops.map((item, idx) => `
-            <div class="result-card">
+        document.getElementById("leaderboardList").innerHTML = sortedStops.map((item, idx) => {
+            let headlineMetric = item.overallAvg > 0 ? `${fmt(item.overallAvg)} / 10` : "–";
+            if (currentSortMode === "beer") {
+                headlineMetric = item.beerAvg > 0 ? `🍺 ${fmt(item.beerAvg)} / 10` : "–";
+            } else if (currentSortMode === "expensive" || currentSortMode === "cheapest") {
+                headlineMetric = item.priceAvg !== null ? `${Math.round(item.priceAvg)} Kč` : "–";
+            } else if (currentSortMode === "most_beers") {
+                headlineMetric = `${item.totalPocet} piv`;
+            }
+
+            const hasRank =
+                (currentSortMode === "overall" && item.overallAvg > 0) ||
+                (currentSortMode === "beer" && item.beerAvg > 0) ||
+                ((currentSortMode === "expensive" || currentSortMode === "cheapest") && item.priceAvg !== null) ||
+                (currentSortMode === "most_beers" && item.totalPocet > 0);
+
+            return `
+            <div class="result-card ${item.stop.isTrain ? "train-stop" : ""}">
                 <div class="result-top">
                     <div>
-                        <strong>${item.totalAvg > 0 ? `#${idx + 1} ` : ""}${item.stop.name}</strong>
+                        <strong>${hasRank ? `#${idx + 1} ` : ""}${escapeHtml(item.stop.name)}</strong>
+                        ${item.stop.time ? `<span class="stop-time">${escapeHtml(item.stop.time)}</span>` : ""}
                     </div>
-                    <div class="result-score">${item.totalAvgText} / 10</div>
+                    <div class="result-score">${headlineMetric}</div>
                 </div>
                 <div class="metrics-row">
-                    <span class="metric-pill">🍺 Pivo: <b>${item.avgPivo}</b></span>
-                    <span class="metric-pill">🙋 Obsluha: <b>${item.avgObsluha}</b></span>
-                    <span class="metric-pill">🏠 Prostředí: <b>${item.avgProstredi}</b></span>
-                    <span class="metric-pill">⭐ Dojem: <b>${item.avgDojem}</b></span>
-                    <span class="metric-pill">🚽 WC: <b>${item.avgWc}</b></span>
-                    <span class="metric-pill">💰 Cena: <b>${item.avgCena}</b></span>
+                    <span class="metric-pill">🍺 Pivo: <b>${fmt(item.beerAvg)}</b></span>
+                    <span class="metric-pill">🙋 Obsluha: <b>${fmt(item.avgObsluha)}</b></span>
+                    <span class="metric-pill">🏠 Prostředí: <b>${fmt(item.avgProstredi)}</b></span>
+                    <span class="metric-pill">⭐ Dojem: <b>${fmt(item.avgDojem)}</b></span>
+                    <span class="metric-pill">🚽 WC: <b>${fmt(item.avgWc)}</b></span>
+                    <span class="metric-pill">💰 Cena: <b>${item.priceAvg !== null ? Math.round(item.priceAvg) + " Kč" : "–"}</b></span>
                     <span class="metric-pill">🍻 Vypito: <b>${item.totalPocet} ks</b></span>
+                    <span class="metric-pill">🧾 Útrata: <b>${item.stopSpend} Kč</b></span>
                 </div>
+                ${item.notes.length ? `
+                <div class="notes-box">
+                    ${item.notes.map(n => `
+                        <div class="note-item">
+                            <strong>${escapeHtml(n.author)}:</strong> „${escapeHtml(n.text)}“
+                            ${n.time ? `<span class="note-meta">(${n.time})</span>` : ""}
+                        </div>
+                    `).join("")}
+                </div>` : ""}
                 ${item.userRows.length ? `
                 <details>
-                    <summary style="font-size: 0.8rem; color: var(--accent); cursor: pointer; font-weight: 600;">Zobrazit hodnocení jednotlivců (${item.userRows.length})</summary>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Jméno</th>
-                                <th>Pivo</th>
-                                <th>Obsl.</th>
-                                <th>Prostř.</th>
-                                <th>Dojem</th>
-                                <th>WC</th>
-                                <th>Cena</th>
-                                <th>Piv</th>
-                            </tr>
-                        </thead>
-                        <tbody>${item.userRows.join("")}</tbody>
-                    </table>
+                    <summary style="font-size: 0.8rem; color: var(--accent); cursor: pointer; font-weight: 600;">
+                        Zobrazit hodnocení jednotlivců (${item.userRows.length})
+                    </summary>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Jméno</th>
+                                    <th>Pivo</th>
+                                    <th>Obsl.</th>
+                                    <th>Prostř.</th>
+                                    <th>Dojem</th>
+                                    <th>WC</th>
+                                    <th>Cena</th>
+                                    <th>Piv</th>
+                                    <th>Útrata</th>
+                                    <th>Čas</th>
+                                </tr>
+                            </thead>
+                            <tbody>${item.userRows.join("")}</tbody>
+                        </table>
+                    </div>
                 </details>
                 ` : `<div style="font-size: 0.8rem; color: var(--muted);">Zatím nikdo nehodnotil.</div>`}
-            </div>
-        `).join("");
+            </div>`;
+        }).join("");
 
         drinkerStats.sort((a, b) => b.beers - a.beers);
         document.getElementById("drinkersList").innerHTML = drinkerStats.length ? `
             <table>
-                <thead><tr><th>Pořadí a jméno</th><th style="text-align:right;">Počet piv</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Pořadí a jméno</th>
+                        <th style="text-align:right;">Počet piv</th>
+                        <th style="text-align:right;">Útrata za pivo</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    ${drinkerStats.map((d, i) => `<tr><td>${i + 1}. ${d.name}</td><td style="text-align:right; font-weight:700;">${d.beers} ks</td></tr>`).join("")}
+                    ${drinkerStats.map((d, i) => `
+                        <tr>
+                            <td>${i + 1}. ${escapeHtml(d.name)}</td>
+                            <td style="text-align:right; font-weight:700;">${d.beers} ks</td>
+                            <td style="text-align:right; font-weight:700;">${d.spend} Kč</td>
+                        </tr>
+                    `).join("")}
                 </tbody>
             </table>
         ` : "Zatím žádná data.";
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(str) {
+        return escapeHtml(str).replace(/'/g, "&#39;");
     }
 </script>
 
