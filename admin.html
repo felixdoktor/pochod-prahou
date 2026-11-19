@@ -3,56 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin – Pochod Prahou</title>
-    <!-- SheetJS pro generování pravého Excel sešitu (.xlsx) s více listy -->
+    <title>Admin – Nastavení akce</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary: #1e293b;
+            --primary: #182232;
+            --primary-soft: #27354c;
             --accent: #d97706;
-            --bg: #f1f5f9;
+            --accent-hover: #b45309;
+            --bg: #eef2f6;
             --card: #ffffff;
             --text: #0f172a;
             --muted: #64748b;
-            --border: #cbd5e1;
+            --border: #dbe3ec;
             --danger: #dc2626;
-            --success: #16a34a;
+            --success: #15803d;
+            --shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
         }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 48px; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 52px; line-height: 1.45; }
 
         header {
-            background: var(--primary);
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-soft) 100%);
             color: white;
             padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
         }
-        header h1 { margin: 0; font-size: 1.15rem; }
-        header a { color: #fbbf24; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+        header h1 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+        header a { color: #fbbf24; text-decoration: none; font-size: 0.9rem; font-weight: 700; }
+        header a:hover { text-decoration: underline; }
 
-        .container { max-width: 760px; margin: 0 auto; padding: 12px; }
+        .container { max-width: 760px; margin: 0 auto; padding: 14px 12px; }
         .card {
             background: var(--card);
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: 14px;
+            padding: 18px 16px;
             margin-bottom: 14px;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow);
         }
+        .card h3 { margin: 0 0 12px; font-size: 1.05rem; }
+
         .form-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
         .form-group { display: flex; flex-direction: column; margin-bottom: 10px; }
-        label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+        label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 0.02em;
+        }
         input[type="text"], input[type="password"], input[type="number"], input[type="url"] {
-            padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            width: 100%;
+            background: #f8fafc;
+            color: var(--text);
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #ffffff;
         }
         .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 0.9rem; }
 
         .btn {
             background: var(--accent); color: white; border: none; padding: 10px 14px;
-            border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem;
+            border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem;
         }
-        .btn-sm { padding: 6px 9px; font-size: 0.78rem; }
+        .btn:hover { background: var(--accent-hover); }
+        .btn-sm { padding: 6px 10px; font-size: 0.78rem; border-radius: 8px; }
         .btn-danger { background: var(--danger); }
         .btn-secondary { background: #64748b; }
         .btn-success { background: var(--success); }
@@ -64,7 +90,7 @@
             padding: 12px 6px; border-bottom: 1px solid #e2e8f0; gap: 10px;
         }
         .stop-item:last-child { border-bottom: none; }
-        .stop-thumb { width: 42px; height: 42px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; }
+        .stop-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; }
         .stop-actions { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
@@ -77,14 +103,14 @@
 <body>
 
 <header>
-    <h1>⚙️ Administrace pochodu</h1>
+    <h1>⚙️ Administrace akce</h1>
     <a href="index.html">← Zpět na hodnocení</a>
 </header>
 
 <div class="container">
 
     <!-- PŘIHLÁŠENÍ (BEZ ZAPAMATOVÁNÍ) -->
-    <div id="authBox" class="card" style="text-align: center; margin-top: 30px;">
+    <div id="authBox" class="card" style="text-align: center; margin-top: 28px;">
         <h2>Vstup pro organizátora</h2>
         <p style="color: var(--muted); font-size: 0.9rem;">
             Přihlášení se neukládá – při každém otevření stránky je nutné zadat heslo.
@@ -96,9 +122,23 @@
     <!-- ADMIN ROZHRANÍ -->
     <div id="adminContent" class="hidden">
 
+        <!-- NASTAVENÍ AKCE A TRASY -->
+        <div class="card">
+            <h3>🏷️ Nastavení akce a trasy</h3>
+            <div class="form-group">
+                <label>Název akce</label>
+                <input type="text" id="settingEventTitle" placeholder="např. 🍺 Pochod Prahou 21. 11. 2026">
+            </div>
+            <div class="form-group">
+                <label>Odkaz na trasu v mapě (URL)</label>
+                <input type="url" id="settingRouteUrl" placeholder="https://mapy.cz/...">
+            </div>
+            <button class="btn" onclick="saveSettings()">Uložit nastavení akce</button>
+        </div>
+
         <!-- FORMULÁŘ PRO PŘIDÁNÍ / ÚPRAVU ZASTÁVKY -->
         <div class="card">
-            <h3 id="formTitle" style="margin-top: 0;">➕ Přidat novou hospodu / zastávku</h3>
+            <h3 id="formTitle">➕ Přidat novou hospodu / zastávku</h3>
             <input type="hidden" id="editId">
 
             <div class="form-row">
@@ -154,19 +194,19 @@
 
         <!-- SEZNAM ZASTÁVEK S ŠIPKAMI -->
         <div class="card">
-            <h3 style="margin-top: 0;">Seznam zastávek</h3>
+            <h3>Seznam zastávek</h3>
             <div id="stopsContainer">Načítám...</div>
         </div>
 
         <!-- ÚČASTNÍCI A AKTIVITA -->
         <div class="card">
-            <h3 style="margin-top: 0;">👥 Účastníci a jejich aktivita</h3>
+            <h3>👥 Účastníci a jejich aktivita</h3>
             <div id="usersContainer">Načítám...</div>
         </div>
 
         <!-- EXPORT, ZÁLOHA, OBNOVA A SMAZÁNÍ HODNOCENÍ -->
         <div class="card">
-            <h3 style="margin-top: 0;">📊 Excel export, záloha a čištění dat</h3>
+            <h3>📊 Excel export, záloha a čištění dat</h3>
             <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0;">
                 Excel export vytvoří sešit s celkovým hodnocením i samostatnými listy pro každého účastníka. Před smazáním všech hodnocení je nutné stáhnout zálohu (JSON).
             </p>
@@ -186,7 +226,9 @@
 <script>
     const FIREBASE_URL = "https://pochod-55bcd-default-rtdb.europe-west1.firebasedatabase.app";
     const ADMIN_PASSWORD = "pivo2026";
+    const DEFAULT_EVENT_TITLE = "🍺 Pochod Prahou 21. 11. 2026";
 
+    let settingsData = { eventTitle: DEFAULT_EVENT_TITLE, routeUrl: "" };
     let stops = [];
     let usersMap = {};
     let backupDownloadedForReset = false;
@@ -209,12 +251,21 @@
     }
 
     async function refreshAdminData() {
-        const [stopsRes, usersRes] = await Promise.all([
+        const [settingsRes, stopsRes, usersRes] = await Promise.all([
+            fetch(`${FIREBASE_URL}/settings.json`),
             fetch(`${FIREBASE_URL}/stops.json`),
             fetch(`${FIREBASE_URL}/users.json`)
         ]);
+        const sData = await settingsRes.json();
         const stopsData = await stopsRes.json();
         const usersData = await usersRes.json();
+
+        settingsData = {
+            eventTitle: (sData && sData.eventTitle) || DEFAULT_EVENT_TITLE,
+            routeUrl: (sData && sData.routeUrl) || ""
+        };
+        document.getElementById("settingEventTitle").value = settingsData.eventTitle;
+        document.getElementById("settingRouteUrl").value = settingsData.routeUrl;
 
         stops = stopsData
             ? Object.values(stopsData).sort((a, b) => (a.order || 99) - (b.order || 99))
@@ -233,6 +284,19 @@
         if (!document.getElementById("editId").value) {
             document.getElementById("stopOrder").value = stops.length + 1;
         }
+    }
+
+    async function saveSettings() {
+        const eventTitle = document.getElementById("settingEventTitle").value.trim() || DEFAULT_EVENT_TITLE;
+        const routeUrl = document.getElementById("settingRouteUrl").value.trim();
+
+        const payload = { eventTitle, routeUrl };
+        await fetch(`${FIREBASE_URL}/settings.json`, {
+            method: "PUT",
+            body: JSON.stringify(payload)
+        });
+        settingsData = payload;
+        alert("Nastavení akce bylo uloženo!");
     }
 
     function renderStops() {
@@ -420,7 +484,6 @@
 
     async function deleteUser(userId, name) {
         if (confirm(`Opravdu chceš smazat uživatele "${name}" včetně všech jeho hodnocení?`)) {
-            // Zapíšeme příznak smazání, aby index.html při dalším načtení vyčistil localStorage daného uživatele
             await fetch(`${FIREBASE_URL}/users/${userId}.json`, {
                 method: "PUT",
                 body: JSON.stringify({
@@ -435,6 +498,7 @@
     function buildFullBackupPayload() {
         return {
             exportedAt: new Date().toISOString(),
+            settings: settingsData,
             stops: stops,
             users: usersMap
         };
@@ -465,6 +529,13 @@
             if (!confirm("Opravdu chceš ze zálohy obnovit data v databázi? Současná data budou přepsána.")) {
                 event.target.value = "";
                 return;
+            }
+
+            if (data.settings && typeof data.settings === "object") {
+                await fetch(`${FIREBASE_URL}/settings.json`, {
+                    method: "PUT",
+                    body: JSON.stringify(data.settings)
+                });
             }
 
             if (Array.isArray(data.stops)) {
@@ -546,10 +617,10 @@
 
         const wb = XLSX.utils.book_new();
         const users = Object.values(usersMap).filter(u => u && !u.deletedAt);
+        const eventNameClean = (settingsData.eventTitle || DEFAULT_EVENT_TITLE).replace(/^[^\w\sÁ-ž]+\s*/, "");
 
-        // 1. LIST: Celkové hodnocení
         const summaryRows = [
-            ["Pochod Prahou 21. 11. 2026 – Celkové hodnocení", "", "", "", "", "", "", "", "", "", "", ""],
+            [`${eventNameClean} – Celkové hodnocení`],
             ["Pořadí", "Zastávka", "Čas", "Typ", "Průměr celkem", "Pivo (ø)", "Obsluha (ø)", "Prostředí (ø)", "Dojem (ø)", "WC (ø)", "Cena piva (ø Kč)", "Počet piv", "Útrata (Kč)", "Poznámky"]
         ];
 
@@ -614,7 +685,6 @@
         ];
         XLSX.utils.book_append_sheet(wb, wsSummary, "Celkové hodnocení");
 
-        // 2. DALŠÍ LISTY: Jednotliví uživatelé (struktura blízká papírovému archu)
         const usedSheetNames = new Set(["celkové hodnocení"]);
 
         users.forEach(u => {
@@ -622,8 +692,8 @@
             const ratings = u.ratings || {};
 
             const userSheetRows = [
-                ["Pochod Prahou 21. 11. 2026", "", "", "", "", "", "", "", "", ""],
-                ["Hodnotil:", u.name || "", "", "", "", "", "", "", "", ""],
+                [eventNameClean],
+                ["Hodnotil:", u.name || ""],
                 ["#", "Zastávka", "PIVO", "OBSLUHA", "PROSTŘEDÍ", "CELK. DOJEM", "CENA PIVA", "POČET PIV", "WC", "ÚTRATA (Kč)", "POZNÁMKA"]
             ];
 
@@ -669,11 +739,13 @@
             XLSX.utils.book_append_sheet(wb, wsUser, sheetName);
         });
 
-        XLSX.writeFile(wb, `Pochod_Prahou_21_11_2026.xlsx`);
+        const safeFileName = eventNameClean.replace(/[^a-zA-Z0-9Á-ž_-]+/g, "_").replace(/^_+|_+$/g, "") || "Hodnoceni";
+        XLSX.writeFile(wb, `${safeFileName}.xlsx`);
     }
 
     function openPrintSummary() {
         const users = Object.values(usersMap).filter(u => u && !u.deletedAt);
+        const eventNameClean = (settingsData.eventTitle || DEFAULT_EVENT_TITLE).replace(/^[^\w\sÁ-ž]+\s*/, "");
         let grandBeers = 0;
         let grandSpend = 0;
 
@@ -707,14 +779,14 @@
 
         const win = window.open("", "_blank");
         win.document.write(`
-            <html><head><title>Přehled pochodu</title>
+            <html><head><title>${escapeHtml(eventNameClean)} – Přehled</title>
             <style>
                 body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
                 table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
                 th, td { border: 1px solid #999; padding: 6px 8px; text-align: left; }
                 th { background: #eee; }
             </style></head><body>
-            <h2>Pochod Prahou – Celkový přehled a vyúčtování</h2>
+            <h2>${escapeHtml(eventNameClean)} – Celkový přehled a vyúčtování</h2>
             <p><strong>Účastníků:</strong> ${users.length} | <strong>Celkem piv:</strong> ${grandBeers} | <strong>Celková útrata za pivo:</strong> ${Math.round(grandSpend)} Kč</p>
             <table>
                 <thead><tr><th>#</th><th>Zastávka</th><th>Průměr</th><th>Piv</th><th>Útrata</th><th>Poznámky / hlášky</th></tr></thead>
