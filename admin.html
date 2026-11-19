@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Správa zastávek</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #d97706;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 40px; }
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { margin: 0; font-size: 1.15rem; }
+        header a { color: #fbbf24; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+
+        .container { max-width: 700px; margin: 0 auto; padding: 12px; }
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 10px; }
+        label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+        input[type="text"], input[type="password"], input[type="number"] {
+            padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; width: 100%;
+        }
+        .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 0.9rem; }
+
+        .btn {
+            background: var(--accent); color: white; border: none; padding: 10px 14px;
+            border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem;
+        }
+        .btn-sm { padding: 6px 10px; font-size: 0.8rem; }
+        .btn-danger { background: var(--danger); }
+        .btn-secondary { background: #64748b; }
+
+        .stop-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; border-bottom: 1px solid #e2e8f0; gap: 10px;
+        }
+        .stop-item:last-child { border-bottom: none; }
+        .stop-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚙️ Administrace zastávek</h1>
+    <a href="index.html">← Zpět na hodnocení</a>
+</header>
+
+<div class="container">
+
+    <!-- PŘIHLÁŠENÍ DO ADMINU -->
+    <div id="authBox" class="card" style="text-align: center; margin-top: 30px;">
+        <h2>Vstup pro organizátora</h2>
+        <p style="color: var(--muted); font-size: 0.9rem;">Zadej admin heslo pro úpravu trasy a hospod.</p>
+        <input type="password" id="adminPass" placeholder="Heslo (výchozí: pivo2026)" style="max-width: 300px; margin-bottom: 12px;"><br>
+        <button class="btn" onclick="checkAdmin()">Přihlásit se</button>
+    </div>
+
+    <!-- ADMIN ROZHRANÍ -->
+    <div id="adminContent" class="hidden">
+        
+        <!-- FORMULÁŘ PRO PŘIDÁNÍ / ÚPRAVU -->
+        <div class="card">
+            <h3 id="formTitle" style="margin-top: 0;">➕ Přidat novou hospodu / zastávku</h3>
+            <input type="hidden" id="editId">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Číslo / Označení</label>
+                    <input type="text" id="stopNum" placeholder="např. 11.">
+                </div>
+                <div class="form-group">
+                    <label>Název podniku *</label>
+                    <input type="text" id="stopName" placeholder="např. Pivnice U Jelena">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Čas (volitelné)</label>
+                    <input type="text" id="stopTime" placeholder="např. 18:30">
+                </div>
+                <div class="form-group">
+                    <label>Adresa / Poznámka</label>
+                    <input type="text" id="stopAddr" placeholder="např. Dlouhá 12, Praha 1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Pořadí v seznamu (číslo)</label>
+                <input type="number" id="stopOrder" placeholder="např. 12">
+            </div>
+
+            <div class="checkbox-row">
+                <input type="checkbox" id="stopIsTrain">
+                <label for="stopIsTrain" style="margin:0; text-transform: none; font-size: 0.9rem; color: var(--text);">
+                    Toto není hospoda (např. cesta vlakem – nepočítat do „Top hospody“)
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button class="btn" onclick="saveStop()">Uložit zastávku</button>
+                <button class="btn btn-secondary hidden" id="cancelEditBtn" onclick="resetForm()">Zrušit úpravu</button>
+            </div>
+        </div>
+
+        <!-- SEZNAM AKTUÁLNÍCH ZASTÁVEK -->
+        <div class="card">
+            <h3 style="margin-top: 0;">Aktuální seznam zastávek</h3>
+            <div id="stopsContainer">Načítám...</div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const FIREBASE_URL = "https://pochod-55bcd-default-rtdb.europe-west1.firebasedatabase.app";
+    
+    // ZDE SI MŮŽEŠ ZMĚNIT HESLO DO ADMINU
+    const ADMIN_PASSWORD = "pivo2026";
+
+    let stops = [];
+
+    window.onload = () => {
+        if (sessionStorage.getItem("pochod_admin") === "1") {
+            unlockAdmin();
+        }
+    };
+
+    function checkAdmin() {
+        const val = document.getElementById("adminPass").value;
+        if (val === ADMIN_PASSWORD) {
+            sessionStorage.setItem("pochod_admin", "1");
+            unlockAdmin();
+        } else {
+            alert("Špatné heslo!");
+        }
+    }
+
+    async function unlockAdmin() {
+        document.getElementById("authBox").classList.add("hidden");
+        document.getElementById("adminContent").classList.remove("hidden");
+        await loadStops();
+    }
+
+    async function loadStops() {
+        const res = await fetch(`${FIREBASE_URL}/stops.json`);
+        const data = await res.json();
+        stops = data ? Object.values(data).sort((a, b) => (a.order || 99) - (b.order || 99)) : [];
+        renderStops();
+        if (!document.getElementById("editId").value) {
+            document.getElementById("stopOrder").value = stops.length + 1;
+        }
+    }
+
+    function renderStops() {
+        const container = document.getElementById("stopsContainer");
+        if (!stops.length) {
+            container.innerHTML = "<p>Zatím zde nejsou žádné zastávky. Otevři nejdřív hlavní stránku, aby se načetly výchozí, nebo přidej novou.</p>";
+            return;
+        }
+
+        container.innerHTML = stops.map(s => `
+            <div class="stop-item">
+                <div>
+                    <div><strong>[${s.order}] ${s.num || ""} ${s.name}</strong> ${s.time ? `<span style="color:var(--danger); font-weight:700;">(${s.time})</span>` : ""}</div>
+                    <div style="font-size: 0.8rem; color: var(--muted);">${s.addr || ""}</div>
+                </div>
+                <div class="stop-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="editStop('${s.id}')">Upravit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteStop('${s.id}', '${s.name}')">Smazat</button>
+                </div>
+            </div>
+        `).join("");
+    }
+
+    function editStop(id) {
+        const s = stops.find(x => x.id === id);
+        if (!s) return;
+        document.getElementById("formTitle").textContent = "✏️ Upravit zastávku";
+        document.getElementById("editId").value = s.id;
+        document.getElementById("stopNum").value = s.num || "";
+        document.getElementById("stopName").value = s.name || "";
+        document.getElementById("stopTime").value = s.time || "";
+        document.getElementById("stopAddr").value = s.addr || "";
+        document.getElementById("stopOrder").value = s.order || 1;
+        document.getElementById("stopIsTrain").checked = !!s.isTrain;
+        document.getElementById("cancelEditBtn").classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function resetForm() {
+        document.getElementById("formTitle").textContent = "➕ Přidat novou hospodu / zastávku";
+        document.getElementById("editId").value = "";
+        document.getElementById("stopNum").value = "";
+        document.getElementById("stopName").value = "";
+        document.getElementById("stopTime").value = "";
+        document.getElementById("stopAddr").value = "";
+        document.getElementById("stopOrder").value = stops.length + 1;
+        document.getElementById("stopIsTrain").checked = false;
+        document.getElementById("cancelEditBtn").classList.add("hidden");
+    }
+
+    async function saveStop() {
+        const name = document.getElementById("stopName").value.trim();
+        if (!name) {
+            alert("Zadej název podniku!");
+            return;
+        }
+
+        let id = document.getElementById("editId").value;
+        if (!id) {
+            id = "stop_" + Date.now();
+        }
+
+        const stopObj = {
+            id: id,
+            num: document.getElementById("stopNum").value.trim(),
+            name: name,
+            time: document.getElementById("stopTime").value.trim(),
+            addr: document.getElementById("stopAddr").value.trim(),
+            order: Number(document.getElementById("stopOrder").value) || 99,
+            isTrain: document.getElementById("stopIsTrain").checked
+        };
+
+        await fetch(`${FIREBASE_URL}/stops/${id}.json`, {
+            method: "PUT",
+            body: JSON.stringify(stopObj)
+        });
+
+        resetForm();
+        await loadStops();
+    }
+
+    async function deleteStop(id, name) {
+        if (confirm(`Opravdu chceš smazat zastávku "${name}"?`)) {
+            await fetch(`${FIREBASE_URL}/stops/${id}.json`, { method: "DELETE" });
+            await loadStops();
+        }
+    }
+</script>
+
+</body>
+</html>
