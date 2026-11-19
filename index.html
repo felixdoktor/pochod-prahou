@@ -3,134 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pochod Prahou 21. 11. 2026 – Hodnocení</title>
+    <title>Hodnocení akce</title>
     <style>
         :root {
-            --primary: #1e293b;
+            --primary: #182232;
+            --primary-soft: #27354c;
             --accent: #d97706;
             --accent-hover: #b45309;
-            --bg: #f1f5f9;
+            --accent-soft: #fef3c7;
+            --bg: #eef2f6;
             --card: #ffffff;
             --train-bg: #e2e8f0;
+            --train-header: #d6dfe9;
             --text: #0f172a;
             --muted: #64748b;
-            --border: #cbd5e1;
+            --border: #dbe3ec;
             --danger: #dc2626;
-            --success: #16a34a;
+            --success: #15803d;
+            --shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
         }
 
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 48px; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 52px; line-height: 1.45; }
 
         header {
-            background: var(--primary);
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-soft) 100%);
             color: white;
-            padding: 14px 16px;
+            padding: 16px;
             text-align: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
         }
-        header h1 { margin: 0; font-size: 1.2rem; }
+        header h1 {
+            margin: 0;
+            font-size: 1.22rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
         header .sub {
-            font-size: 0.85rem;
+            font-size: 0.84rem;
             color: #cbd5e1;
-            margin-top: 6px;
+            margin-top: 8px;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             flex-wrap: wrap;
+        }
+        .user-pill {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            color: #f8fafc;
         }
         header a.route-link {
             color: #fbbf24;
             text-decoration: none;
-            font-weight: 600;
-            border: 1px solid rgba(251, 191, 36, 0.4);
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            background: rgba(251, 191, 36, 0.08);
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            transition: background 0.15s;
+        }
+        header a.route-link:hover {
+            background: rgba(251, 191, 36, 0.18);
         }
 
-        .container { max-width: 720px; margin: 0 auto; padding: 12px; }
+        .container { max-width: 720px; margin: 0 auto; padding: 14px 12px; }
 
         .offline-banner {
-            background: #fef3c7;
+            background: var(--accent-soft);
             border: 1px solid #f59e0b;
             color: #92400e;
             padding: 10px 14px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            font-size: 0.85rem;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            font-size: 0.84rem;
             font-weight: 600;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 8px;
+            box-shadow: var(--shadow);
         }
 
         .login-box {
             background: var(--card);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 26px 22px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
             margin-top: 24px;
             text-align: center;
         }
+        .login-box h2 { margin: 0 0 6px; font-size: 1.3rem; }
         .login-box input {
             width: 100%;
-            padding: 12px;
+            padding: 12px 14px;
             margin: 8px 0;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
+            background: #f8fafc;
+        }
+        .login-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
         }
 
         .tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            background: #e2e8f0;
+            gap: 6px;
+            margin-bottom: 16px;
+            background: #dde4ec;
             padding: 4px;
-            border-radius: 10px;
+            border-radius: 12px;
         }
         .tab-btn {
             flex: 1;
-            padding: 10px;
+            padding: 10px 12px;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
+            border-radius: 9px;
+            font-weight: 700;
+            font-size: 0.92rem;
             cursor: pointer;
             background: transparent;
             color: var(--muted);
-            transition: 0.2s;
+            transition: all 0.18s ease;
         }
         .tab-btn.active {
             background: var(--card);
             color: var(--primary);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
 
         .stop-card {
             background: var(--card);
-            border-radius: 12px;
+            border-radius: 14px;
             margin-bottom: 12px;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow);
             overflow: hidden;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .stop-card.train-stop {
             background: var(--train-bg);
             border-color: #cbd5e1;
         }
         .stop-card.train-stop .stop-header {
-            background: #dbe2ea;
+            background: var(--train-header);
         }
         .stop-card.next-up {
             border: 2px solid var(--accent);
-            box-shadow: 0 3px 10px rgba(217, 119, 6, 0.16);
+            box-shadow: 0 6px 16px rgba(217, 119, 6, 0.16);
         }
 
         .stop-header {
@@ -139,39 +170,45 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            background: #f8fafc;
-            gap: 10px;
+            background: #ffffff;
+            gap: 12px;
+        }
+        .stop-header:hover {
+            background: #fafbfd;
         }
         .stop-thumb {
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 10px;
             flex-shrink: 0;
             border: 1px solid var(--border);
         }
-        .stop-title { font-weight: 700; font-size: 1.02rem; }
-        .stop-time { color: var(--danger); font-weight: 700; font-size: 0.88rem; margin-left: 6px; }
+        .stop-title { font-weight: 700; font-size: 1.02rem; color: var(--text); }
+        .stop-time { color: var(--danger); font-weight: 700; font-size: 0.86rem; margin-left: 6px; }
         .stop-next-tag {
             display: inline-block;
-            background: #fef3c7;
+            background: var(--accent-soft);
             color: #b45309;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 5px;
+            padding: 2px 7px;
+            border-radius: 6px;
             margin-left: 6px;
             text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
-        .stop-address { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+        .stop-address { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
         .stop-address a { color: #0284c7; text-decoration: none; font-weight: 600; margin-left: 6px; }
+        .stop-address a:hover { text-decoration: underline; }
+
         .badge {
-            padding: 4px 8px;
+            padding: 5px 10px;
             border-radius: 999px;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             font-weight: 700;
             background: #e2e8f0;
-            color: var(--muted);
+            color: #475569;
             white-space: nowrap;
         }
         .badge.done { background: #dcfce7; color: var(--success); }
@@ -186,10 +223,10 @@
 
         .stop-banner-img {
             width: 100%;
-            max-height: 180px;
+            max-height: 190px;
             object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            border-radius: 10px;
+            margin-bottom: 14px;
         }
 
         .form-grid {
@@ -199,44 +236,53 @@
         }
         .form-group { display: flex; flex-direction: column; }
         .form-group label {
-            font-size: 0.78rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             color: var(--muted);
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
         .form-group select, .form-group input {
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            background: white;
+            border-radius: 10px;
+            font-size: 0.98rem;
+            background: #f8fafc;
+            color: var(--text);
             width: 100%;
+        }
+        .form-group select:focus, .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #ffffff;
         }
 
         .stepper {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         .step-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             border: 1px solid var(--border);
             background: #f1f5f9;
             font-size: 1.25rem;
             font-weight: 700;
             cursor: pointer;
             flex-shrink: 0;
+            color: var(--text);
         }
+        .step-btn:hover { background: #e2e8f0; }
         .step-btn:active { background: #cbd5e1; }
         .stepper input { text-align: center; font-weight: 700; }
 
         .hint-text {
             font-size: 0.75rem;
             color: var(--muted);
-            margin-top: 3px;
+            margin-top: 4px;
         }
 
         .btn {
@@ -244,39 +290,43 @@
             color: white;
             border: none;
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.98rem;
             cursor: pointer;
             width: 100%;
+            transition: background 0.15s ease;
         }
         .btn:hover { background: var(--accent-hover); }
         .btn-sm {
-            padding: 7px 10px;
+            padding: 7px 12px;
             font-size: 0.82rem;
             width: auto;
+            border-radius: 8px;
         }
         .btn-danger-outline {
             background: transparent;
             color: var(--danger);
-            border: 1px solid var(--danger);
+            border: 1px solid #fca5a5;
             padding: 9px 12px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             font-size: 0.85rem;
             cursor: pointer;
             width: 100%;
             margin-top: 8px;
         }
+        .btn-danger-outline:hover { background: #fef2f2; }
         .btn-outline {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.35);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #e2e8f0;
+            padding: 3px 9px;
+            border-radius: 999px;
             font-size: 0.75rem;
             cursor: pointer;
         }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); }
 
         .results-toolbar {
             display: flex;
@@ -291,21 +341,22 @@
         .stats-summary {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 14px;
+            gap: 10px;
+            margin-bottom: 16px;
         }
         @media (min-width: 520px) {
             .stats-summary { grid-template-columns: repeat(4, 1fr); }
         }
         .stat-box {
             background: var(--card);
-            padding: 12px 8px;
-            border-radius: 10px;
+            padding: 13px 10px;
+            border-radius: 12px;
             text-align: center;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow);
         }
-        .stat-val { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
-        .stat-lbl { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+        .stat-val { font-size: 1.22rem; font-weight: 800; color: var(--accent); }
+        .stat-lbl { font-size: 0.72rem; color: var(--muted); font-weight: 700; margin-top: 2px; }
 
         .lb-filters {
             display: flex;
@@ -315,7 +366,7 @@
             margin-bottom: 10px;
         }
         .chip-btn {
-            padding: 6px 12px;
+            padding: 7px 13px;
             border-radius: 999px;
             border: 1px solid var(--border);
             background: var(--card);
@@ -324,6 +375,7 @@
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
         }
         .chip-btn.active {
             background: var(--primary);
@@ -333,10 +385,11 @@
 
         .result-card {
             background: var(--card);
-            border-radius: 12px;
-            padding: 14px;
+            border-radius: 14px;
+            padding: 15px;
             margin-bottom: 12px;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow);
         }
         .result-card.train-stop {
             background: #e9eef3;
@@ -350,13 +403,13 @@
             font-size: 0.78rem;
             margin-bottom: 10px;
         }
-        .metric-pill { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; }
+        .metric-pill { background: #f1f5f9; padding: 4px 9px; border-radius: 7px; border: 1px solid #e2e8f0; }
 
         .notes-box {
             background: #fffbeb;
             border-left: 3px solid var(--accent);
-            padding: 8px 10px;
-            border-radius: 6px;
+            padding: 9px 12px;
+            border-radius: 8px;
             margin-bottom: 10px;
             font-size: 0.82rem;
         }
@@ -371,22 +424,24 @@
 
         footer {
             text-align: center;
-            margin-top: 30px;
-            font-size: 0.8rem;
+            margin-top: 32px;
+            font-size: 0.82rem;
         }
         footer a {
             color: var(--muted);
             text-decoration: none;
-            opacity: 0.75;
+            padding: 6px 12px;
+            border-radius: 8px;
+            display: inline-block;
         }
-        footer a:hover { opacity: 1; text-decoration: underline; }
+        footer a:hover { background: #e2e8f0; color: var(--text); }
 
         .hidden { display: none !important; }
         #toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: #0f172a; color: white; padding: 10px 20px; border-radius: 999px;
-            font-size: 0.9rem; font-weight: 600; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 200;
-            max-width: 90%; text-align: center;
+            background: var(--primary); color: white; padding: 10px 20px; border-radius: 999px;
+            font-size: 0.9rem; font-weight: 600; opacity: 0; transition: 0.25s; pointer-events: none; z-index: 200;
+            max-width: 90%; text-align: center; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.25);
         }
         #toast.show { opacity: 1; }
     </style>
@@ -394,10 +449,10 @@
 <body>
 
 <header>
-    <h1>🍺 Pochod Prahou 21. 11. 2026</h1>
+    <h1 id="eventTitleHeading">🍺 Pochod Prahou 21. 11. 2026</h1>
     <div class="sub">
-        <span id="userDisplay">Nepřihlášen</span>
-        <a class="route-link" id="routeLink" href="https://mapy.cz" target="_blank" rel="noopener">🗺️ Trasa v mapě</a>
+        <span class="user-pill" id="userDisplay">Nepřihlášen</span>
+        <a class="route-link hidden" id="routeLink" href="#" target="_blank" rel="noopener">🗺️ Trasa v mapě</a>
         <button id="logoutBtn" class="btn-outline hidden" onclick="logout()">Změnit jméno</button>
     </div>
 </header>
@@ -411,13 +466,13 @@
 
     <!-- PŘIHLÁŠENÍ -->
     <div id="loginSection" class="login-box">
-        <h2>Vítej na pochodu!</h2>
-        <p style="color: var(--muted); font-size: 0.9rem;">
+        <h2>Vítej!</h2>
+        <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0;">
             Zadej své jméno a 4místný PIN. Prohlížeč si tě na tomto zařízení zapamatuje po celý den.
         </p>
         <input type="text" id="usernameInput" placeholder="Tvé jméno (např. Honza)" maxlength="20">
         <input type="tel" id="pinInput" placeholder="4místný PIN (např. 1234)" maxlength="4" inputmode="numeric">
-        <button class="btn" onclick="login()">Vstoupit do hodnocení</button>
+        <button class="btn" style="margin-top: 8px;" onclick="login()">Vstoupit do hodnocení</button>
     </div>
 
     <!-- HLAVNÍ APLIKACE -->
@@ -437,7 +492,7 @@
 
             <div class="stats-summary" id="globalStats"></div>
 
-            <h3 style="margin: 14px 0 6px;">Žebříčky zastávek</h3>
+            <h3 style="margin: 14px 0 6px; font-size: 1rem;">Žebříčky zastávek</h3>
             <div class="lb-filters">
                 <button class="chip-btn active" data-sort="overall" onclick="setSortMode('overall', this)">Celkové pořadí</button>
                 <button class="chip-btn" data-sort="beer" onclick="setSortMode('beer', this)">🍺 Nejlepší pivo</button>
@@ -447,13 +502,13 @@
             </div>
             <div id="leaderboardList"></div>
 
-            <h3 style="margin: 20px 0 8px;">🍻 Žebříček pivařů a útraty</h3>
+            <h3 style="margin: 20px 0 8px; font-size: 1rem;">🍻 Žebříček pivařů a útraty</h3>
             <div class="result-card" id="drinkersList"></div>
         </div>
     </div>
 
     <footer>
-        <a href="admin.html">⚙️ Správa zastávek (Admin)</a>
+        <a href="admin.html">⚙️ Správa akce a zastávek (Admin)</a>
     </footer>
 
 </div>
@@ -462,7 +517,7 @@
 
 <script>
     const FIREBASE_URL = "https://pochod-55bcd-default-rtdb.europe-west1.firebasedatabase.app";
-    const ROUTE_URL = "https://mapy.cz";
+    const DEFAULT_EVENT_TITLE = "🍺 Pochod Prahou 21. 11. 2026";
 
     const DEFAULT_STOPS = [
         { id: "1_jelinkova", order: 1, num: "1.", name: "Jelínkova Plzeňská Pivnice", time: "10:00", addr: "Charvátova 33/1, Praha 1", beerPrice: null, imageUrl: "", isTrain: false },
@@ -480,7 +535,9 @@
 
     const OFFLINE_QUEUE_KEY = "pochod_offline_queue_v1";
     const USER_KEY = "pochod_user_v1";
+    const SETTINGS_CACHE_KEY = "pochod_settings_v1";
 
+    let eventSettings = { eventTitle: DEFAULT_EVENT_TITLE, routeUrl: "" };
     let stopsList = [];
     let currentUser = null;
     let allData = {};
@@ -488,20 +545,23 @@
     let lastUpdatedTime = null;
 
     window.onload = async () => {
-        document.getElementById("routeLink").href = ROUTE_URL;
+        applyCachedSettings();
         updateOfflineBanner();
+
         window.addEventListener("online", async () => {
             updateOfflineBanner();
             await flushOfflineQueue();
         });
         window.addEventListener("offline", updateOfflineBanner);
 
-        // Kontrola při návratu na záložku / stránku (např. po smazání v adminu)
         document.addEventListener("visibilitychange", async () => {
-            if (!document.hidden && currentUser && navigator.onLine) {
-                await verifyCurrentUserExists();
+            if (!document.hidden && navigator.onLine) {
+                await fetchSettings();
+                if (currentUser) await verifyCurrentUserExists();
             }
         });
+
+        await fetchSettings();
 
         const savedUser = localStorage.getItem(USER_KEY);
         if (savedUser) {
@@ -509,6 +569,49 @@
             await showApp();
         }
     };
+
+    function applyCachedSettings() {
+        try {
+            const cached = JSON.parse(localStorage.getItem(SETTINGS_CACHE_KEY) || "null");
+            if (cached) {
+                eventSettings = {
+                    eventTitle: cached.eventTitle || DEFAULT_EVENT_TITLE,
+                    routeUrl: cached.routeUrl || ""
+                };
+            }
+        } catch {}
+        renderEventSettings();
+    }
+
+    function renderEventSettings() {
+        const title = (eventSettings.eventTitle && eventSettings.eventTitle.trim()) || DEFAULT_EVENT_TITLE;
+        document.getElementById("eventTitleHeading").textContent = title;
+        document.title = title.replace(/^[^\w\sÁ-ž]+\s*/, "") + " – Hodnocení";
+
+        const routeEl = document.getElementById("routeLink");
+        const url = (eventSettings.routeUrl || "").trim();
+        if (url && /^https?:\/\//i.test(url)) {
+            routeEl.href = url;
+            routeEl.classList.remove("hidden");
+        } else {
+            routeEl.classList.add("hidden");
+        }
+    }
+
+    async function fetchSettings() {
+        try {
+            const res = await fetch(`${FIREBASE_URL}/settings.json`);
+            const data = await res.json();
+            if (data && typeof data === "object") {
+                eventSettings = {
+                    eventTitle: data.eventTitle || DEFAULT_EVENT_TITLE,
+                    routeUrl: data.routeUrl || ""
+                };
+                localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(eventSettings));
+            }
+        } catch {}
+        renderEventSettings();
+    }
 
     function forceResetLocalSession(message) {
         localStorage.removeItem(USER_KEY);
@@ -646,7 +749,6 @@
                     });
                 }
             } else {
-                // Nový účet (nebo nově vytvořený po předchozím smazání)
                 await fetch(`${FIREBASE_URL}/users/${userId}.json`, {
                     method: "PUT",
                     body: JSON.stringify({ name: name, pin: pin, ratings: {} })
@@ -712,7 +814,6 @@
             const res = await fetch(`${FIREBASE_URL}/users.json`);
             const rawUsers = (await res.json()) || {};
 
-            // Odfiltrujeme smazané uživatele
             const activeUsers = {};
             Object.entries(rawUsers).forEach(([uId, uVal]) => {
                 if (uVal && !uVal.deletedAt) {
@@ -788,7 +889,7 @@
             const isDone = isStopFilled(r);
             const isNext = !isDone && stop.id === highlightId;
             const effectiveCena = r.cena !== null && r.cena !== undefined && r.cena !== "" ? r.cena : (stop.beerPrice || "");
-            const mapQuery = encodeURIComponent(`${stop.name} ${stop.addr || "Praha"}`);
+            const mapQuery = encodeURIComponent(`${stop.name} ${stop.addr || ""}`);
             const mapUrl = `https://mapy.cz/?q=${mapQuery}`;
 
             return `
@@ -956,6 +1057,7 @@
         if (tab === "my") {
             document.getElementById("myRatingsView").classList.remove("hidden");
             document.getElementById("allResultsView").classList.add("hidden");
+            await fetchSettings();
             await fetchStops();
             await fetchData();
             renderMyRatings();
@@ -967,6 +1069,7 @@
     }
 
     async function refreshAllResults(notify) {
+        await fetchSettings();
         await fetchStops();
         await fetchData();
         renderLeaderboard();
