@@ -75,7 +75,7 @@
     <div id="authBox" class="card" style="text-align: center; margin-top: 30px;">
         <h2>Vstup pro organizátora</h2>
         <p style="color: var(--muted); font-size: 0.9rem;">Zadej admin heslo pro úpravu trasy a hospod.</p>
-        <input type="password" id="adminPass" placeholder="Heslo" style="max-width: 300px; margin-bottom: 12px;"><br>
+        <input type="password" id="adminPass" placeholder="Heslo" onkeydown="if(event.key==='Enter') checkAdmin()" style="max-width: 300px; margin-bottom: 12px;"><br>
         <button class="btn" onclick="checkAdmin()">Přihlásit se</button>
     </div>
 
@@ -144,19 +144,14 @@
 
     let stops = [];
 
-    window.onload = () => {
-        if (sessionStorage.getItem("pochod_admin") === "1") {
-            unlockAdmin();
-        }
-    };
-
     function checkAdmin() {
         const val = document.getElementById("adminPass").value;
         if (val === ADMIN_PASSWORD) {
-            sessionStorage.setItem("pochod_admin", "1");
+            document.getElementById("adminPass").value = "";
             unlockAdmin();
         } else {
             alert("Špatné heslo!");
+            document.getElementById("adminPass").value = "";
         }
     }
 
