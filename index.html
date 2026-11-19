@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pochod Prahou 21. 11. 2026 – Hodnocení</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #d97706;
+            --accent-hover: #b45309;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 40px; }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        header h1 { margin: 0; font-size: 1.25rem; }
+        header .sub { font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; display: flex; justify-content: center; gap: 12px; align-items: center; flex-wrap: wrap; }
+        header a { color: #fbbf24; text-decoration: none; font-weight: 600; }
+
+        .container { max-width: 700px; margin: 0 auto; padding: 12px; }
+
+        /* Přihlášení */
+        .login-box {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-top: 30px;
+            text-align: center;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        /* Navigace */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 10px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--card);
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Karty zastávek */
+        .stop-card {
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .stop-header {
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+        .stop-title { font-weight: 700; font-size: 1.05rem; }
+        .stop-time { color: var(--danger); font-weight: 700; font-size: 0.9rem; margin-left: 6px; }
+        .stop-address { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: #e2e8f0;
+            color: var(--muted);
+        }
+        .badge.done { background: #dcfce7; color: var(--success); }
+
+        .stop-body {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+        .stop-card.open .stop-body { display: block; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+        .form-group select, .form-group input {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 14px;
+        }
+        .btn:hover { background: var(--accent-hover); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* Žebříčky a výsledky */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .stat-box {
+            background: var(--card);
+            padding: 12px 8px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .stat-val { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
+        .stat-lbl { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+
+        .result-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+        .result-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+        .result-score { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+        .metrics-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+        .metric-pill { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 8px; }
+        th, td { padding: 6px 4px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        th:first-child, td:first-child { text-align: left; font-weight: 600; }
+        th { color: var(--muted); font-size: 0.7rem; }
+
+        .hidden { display: none !important; }
+        #toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #0f172a; color: white; padding: 10px 20px; border-radius: 999px;
+            font-size: 0.9rem; font-weight: 600; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 200;
+        }
+        #toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🍺 Pochod Prahou 21. 11. 2026</h1>
+    <div class="sub">
+        <span id="userDisplay">Nepřihlášen</span>
+        <button id="logoutBtn" class="btn-outline hidden" onclick="logout()">Změnit jméno</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- PŘIHLÁŠENÍ -->
+    <div id="loginSection" class="login-box">
+        <h2>Vítej na pochodu!</h2>
+        <p style="color: var(--muted); font-size: 0.9rem;">Zadej své jméno (nebo přezdívku), pod kterým budeš hodnotit. Prohlížeč si tě zapamatuje po celý den.</p>
+        <input type="text" id="usernameInput" placeholder="Tvé jméno (např. Honza)" maxlength="20">
+        <input type="tel" id="pinInput" placeholder="Volitelný 4místný PIN (proti přepsání)" maxlength="4">
+        <button class="btn" onclick="login()">Vstoupit do hodnocení</button>
+    </div>
+
+    <!-- HLAVNÍ APLIKACE -->
+    <div id="appSection" class="hidden">
+        <div class="tabs">
+            <button class="tab-btn active" id="tabMy" onclick="switchTab('my')">✍️ Moje hodnocení</button>
+            <button class="tab-btn" id="tabAll" onclick="switchTab('all')">🏆 Celkové výsledky</button>
+        </div>
+
+        <!-- ZÁLOŽKA 1: MOJE HODNOCENÍ -->
+        <div id="myRatingsView"></div>
+
+        <!-- ZÁLOŽKA 2: CELKOVÉ VÝSLEDKY -->
+        <div id="allResultsView" class="hidden">
+            <div class="stats-summary" id="globalStats"></div>
+            <h3 style="margin: 16px 0 8px;">Pořadí zastávek</h3>
+            <div id="leaderboardList"></div>
+            <h3 style="margin: 20px 0 8px;">🍻 Žebříček pivařů</h3>
+            <div class="result-card" id="drinkersList"></div>
+        </div>
+    </div>
+
+</div>
+
+<div id="toast">Uloženo!</div>
+
+<script>
+    // =========================================================================
+    // SEM VLOŽ URL SVÉ FIREBASE DATABÁZE (bez lomítka na konci)
+    // Příklad: "https://pochod-prahou-default-rtdb.europe-west1.firebasedatabase.app"
+    // =========================================================================
+    const FIREBASE_URL = "https://pochod-55bcd-default-rtdb.europe-west1.firebasedatabase.app/";
+
+    // Zastávky přesně podle papírové předlohy a mapy
+    const STOPS = [
+        { id: "1_jelinkova", num: "1.", name: "Jelínkova Plzeňská Pivnice", time: "10:00", addr: "Charvátova 33/1, Praha 1", isTrain: false },
+        { id: "2_hroch", num: "2.", name: "U hrocha", time: "12:00", addr: "Thunovská 178/10, Malá Strana", isTrain: false },
+        { id: "3_glaubici", num: "3.", name: "Restaurant u Glaubiců", time: "", addr: "Malostranské nám. 266/5, Praha 1", isTrain: false },
+        { id: "4_tygr", num: "4.", name: "U Zlatého tygra", time: "15:00", addr: "Husova 228/17, Staré Město", isTrain: false },
+        { id: "5_slon", num: "5.", name: "Pivnice U Zlatého slona", time: "", addr: "Havelská 508/9, Staré Město", isTrain: false },
+        { id: "6_rarasci", num: "6.", name: "Výčep U Rarášků", time: "", addr: "Mikulandská 135/7, Praha 1", isTrain: false },
+        { id: "7_kruh", num: "7.", name: "Hospoda U Kruhu", time: "", addr: "Palackého 723/6, Nové Město", isTrain: false },
+        { id: "8_posta", num: "8.", name: "Restaurace U Staré Pošty", time: "", addr: "Opletalova 1964/17, Nové Město", isTrain: false },
+        { id: "9_bredovsky", num: "9.", name: "Restaurace Bredovský dvůr", time: "", addr: "Politických vězňů 935/13, Praha 1", isTrain: false },
+        { id: "10_vlak_tam", num: "10a.", name: "CESTA VLAKEM – TAM", time: "", addr: "Hodnocení cesty na start", isTrain: true },
+        { id: "10_vlak_zpet", num: "10b.", name: "CESTA VLAKEM – ZPĚT", time: "", addr: "Hodnocení cesty domů", isTrain: true }
+    ];
+
+    let currentUser = null;
+    let allData = {}; // { userId: { name, pin, ratings: { stopId: {...} } } }
+
+    // Inicializace při načtení stránky
+    window.onload = () => {
+        const savedUser = localStorage.getItem("pochod_user");
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            showApp();
+        }
+    };
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2500);
+    }
+
+    function sanitizeId(name) {
+        return name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "_");
+    }
+
+    async function login() {
+        const name = document.getElementById("usernameInput").value.trim();
+        const pin = document.getElementById("pinInput").value.trim();
+        if (!name) {
+            alert("Zadej prosím své jméno.");
+            return;
+        }
+        const userId = sanitizeId(name);
+
+        if (FIREBASE_URL !== "TVOJE_FIREBASE_URL") {
+            try {
+                const res = await fetch(`${FIREBASE_URL}/users/${userId}.json`);
+                const existing = await res.json();
+                if (existing && existing.pin && existing.pin !== pin) {
+                    alert("Tento účastník už existuje a má nastavený jiný PIN.");
+                    return;
+                }
+                if (!existing) {
+                    await fetch(`${FIREBASE_URL}/users/${userId}.json`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ name: name, pin: pin })
+                    });
+                }
+            } catch (e) {
+                console.error("Chyba spojení s DB:", e);
+            }
+        }
+
+        currentUser = { id: userId, name: name, pin: pin };
+        localStorage.setItem("pochod_user", JSON.stringify(currentUser));
+        showApp();
+    }
+
+    function logout() {
+        if (confirm("Opravdu se chceš odhlásit / přepnout jméno?")) {
+            localStorage.removeItem("pochod_user");
+            currentUser = null;
+            document.getElementById("appSection").classList.add("hidden");
+            document.getElementById("loginSection").classList.remove("hidden");
+            document.getElementById("logoutBtn").classList.add("hidden");
+            document.getElementById("userDisplay").textContent = "Nepřihlášen";
+        }
+    }
+
+    async function showApp() {
+        document.getElementById("loginSection").classList.add("hidden");
+        document.getElementById("appSection").classList.remove("hidden");
+        document.getElementById("logoutBtn").classList.remove("hidden");
+        document.getElementById("userDisplay").textContent = `Hodnotí: ${currentUser.name}`;
+
+        await fetchData();
+        renderMyRatings();
+    }
+
+    async function fetchData() {
+        if (FIREBASE_URL === "TVOJE_FIREBASE_URL") {
+            // Lokální záloha, pokud ještě není nastaven Firebase
+            allData = JSON.parse(localStorage.getItem("pochod_local_db") || "{}");
+            if (!allData[currentUser.id]) {
+                allData[currentUser.id] = { name: currentUser.name, ratings: {} };
+            }
+            return;
+        }
+        try {
+            const res = await fetch(`${FIREBASE_URL}/users.json`);
+            allData = (await res.json()) || {};
+            if (!allData[currentUser.id]) {
+                allData[currentUser.id] = { name: currentUser.name, ratings: {} };
+            }
+        } catch (e) {
+            showToast("Nepodařilo se načíst data ze serveru.");
+        }
+    }
+
+    function createScoreOptions(selectedVal) {
+        let html = `<option value="">-- vyber --</option>`;
+        for (let i = 10; i >= 1; i--) {
+            html += `<option value="${i}" ${selectedVal == i ? "selected" : ""}>${i} b.</option>`;
+        }
+        return html;
+    }
+
+    function renderMyRatings() {
+        const container = document.getElementById("myRatingsView");
+        const myRatings = (allData[currentUser.id] && allData[currentUser.id].ratings) || {};
+
+        container.innerHTML = STOPS.map(stop => {
+            const r = myRatings[stop.id] || {};
+            const isDone = r.pivo || r.obsluha || r.prostredi || r.dojem || r.wc || r.pocet;
+
+            return `
+            <div class="stop-card" id="card_${stop.id}">
+                <div class="stop-header" onclick="toggleCard('${stop.id}')">
+                    <div>
+                        <div class="stop-title">${stop.num} ${stop.name} ${stop.time ? `<span class="stop-time">${stop.time}</span>` : ""}</div>
+                        <div class="stop-address">${stop.addr}</div>
+                    </div>
+                    <span class="badge ${isDone ? "done" : ""}" id="badge_${stop.id}">
+                        ${isDone ? "✓ Vyplněno" : "Nevyplněno"}
+                    </span>
+                </div>
+                <div class="stop-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>🍺 Pivo (1-10)</label>
+                            <select id="${stop.id}_pivo">${createScoreOptions(r.pivo)}</select>
+                        </div>
+                        <div class="form-group">
+                            <label>🙋 Obsluha (1-10)</label>
+                            <select id="${stop.id}_obsluha">${createScoreOptions(r.obsluha)}</select>
+                        </div>
+                        <div class="form-group">
+                            <label>🏠 Prostředí (1-10)</label>
+                            <select id="${stop.id}_prostredi">${createScoreOptions(r.prostredi)}</select>
+                        </div>
+                        <div class="form-group">
+                            <label>⭐ Celk. dojem (1-10)</label>
+                            <select id="${stop.id}_dojem">${createScoreOptions(r.dojem)}</select>
+                        </div>
+                        <div class="form-group">
+                            <label>🚽 WC (1-10)</label>
+                            <select id="${stop.id}_wc">${createScoreOptions(r.wc)}</select>
+                        </div>
+                        <div class="form-group">
+                            <label>💰 Cena piva (Kč)</label>
+                            <input type="number" id="${stop.id}_cena" placeholder="např. 62" value="${r.cena || ""}">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>🍻 Počet vypitých piv (ks)</label>
+                            <input type="number" step="0.5" id="${stop.id}_pocet" placeholder="např. 2" value="${r.pocet || ""}">
+                        </div>
+                    </div>
+                    <button class="btn" onclick="saveStop('${stop.id}')">Uložit hodnocení</button>
+                </div>
+            </div>`;
+        }).join("");
+    }
+
+    function toggleCard(stopId) {
+        const card = document.getElementById(`card_${stopId}`);
+        card.classList.toggle("open");
+    }
+
+    async function saveStop(stopId) {
+        const ratingObj = {
+            pivo: Number(document.getElementById(`${stopId}_pivo`).value) || null,
+            obsluha: Number(document.getElementById(`${stopId}_obsluha`).value) || null,
+            prostredi: Number(document.getElementById(`${stopId}_prostredi`).value) || null,
+            dojem: Number(document.getElementById(`${stopId}_dojem`).value) || null,
+            wc: Number(document.getElementById(`${stopId}_wc`).value) || null,
+            cena: Number(document.getElementById(`${stopId}_cena`).value) || null,
+            pocet: Number(document.getElementById(`${stopId}_pocet`).value) || 0
+        };
+
+        if (!allData[currentUser.id]) allData[currentUser.id] = { name: currentUser.name, ratings: {} };
+        if (!allData[currentUser.id].ratings) allData[currentUser.id].ratings = {};
+        allData[currentUser.id].ratings[stopId] = ratingObj;
+
+        if (FIREBASE_URL === "TVOJE_FIREBASE_URL") {
+            localStorage.setItem("pochod_local_db", JSON.stringify(allData));
+            showToast("Uloženo lokálně (nastav Firebase URL!)");
+        } else {
+            try {
+                await fetch(`${FIREBASE_URL}/users/${currentUser.id}/ratings/${stopId}.json`, {
+                    method: "PUT",
+                    body: JSON.stringify(ratingObj)
+                });
+                showToast("✓ Uloženo pro všechny!");
+            } catch (e) {
+                showToast("Chyba při ukládání!");
+            }
+        }
+
+        const badge = document.getElementById(`badge_${stopId}`);
+        badge.textContent = "✓ Vyplněno";
+        badge.classList.add("done");
+        document.getElementById(`card_${stopId}`).classList.remove("open");
+    }
+
+    async function switchTab(tab) {
+        document.getElementById("tabMy").classList.toggle("active", tab === "my");
+        document.getElementById("tabAll").classList.toggle("active", tab === "all");
+
+        if (tab === "my") {
+            document.getElementById("myRatingsView").classList.remove("hidden");
+            document.getElementById("allResultsView").classList.add("hidden");
+        } else {
+            document.getElementById("myRatingsView").classList.add("hidden");
+            document.getElementById("allResultsView").classList.remove("hidden");
+            await fetchData();
+            renderLeaderboard();
+        }
+    }
+
+    function avg(arr) {
+        const valid = arr.filter(v => v !== null && v !== undefined && v > 0);
+        if (!valid.length) return null;
+        return (valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(1);
+    }
+
+    function renderLeaderboard() {
+        const users = Object.values(allData);
+        let totalBeersAll = 0;
+        let drinkerStats = [];
+
+        users.forEach(u => {
+            let userBeers = 0;
+            if (u.ratings) {
+                Object.values(u.ratings).forEach(r => {
+                    userBeers += Number(r.pocet || 0);
+                });
+            }
+            totalBeersAll += userBeers;
+            drinkerStats.push({ name: u.name, beers: userBeers });
+        });
+
+        // Výpočet výsledků pro každou zastávku
+        const stopResults = STOPS.map(stop => {
+            let pivo = [], obsluha = [], prostredi = [], dojem = [], wc = [], cena = [], pocet = 0;
+            let userRows = [];
+
+            users.forEach(u => {
+                const r = u.ratings && u.ratings[stop.id];
+                if (r) {
+                    if (r.pivo) pivo.push(r.pivo);
+                    if (r.obsluha) obsluha.push(r.obsluha);
+                    if (r.prostredi) prostredi.push(r.prostredi);
+                    if (r.dojem) dojem.push(r.dojem);
+                    if (r.wc) wc.push(r.wc);
+                    if (r.cena) cena.push(r.cena);
+                    if (r.pocet) pocet += Number(r.pocet);
+
+                    if (r.pivo || r.obsluha || r.prostredi || r.dojem || r.wc || r.pocet) {
+                        userRows.push(`
+                            <tr>
+                                <td>${u.name}</td>
+                                <td>${r.pivo || "-"}</td>
+                                <td>${r.obsluha || "-"}</td>
+                                <td>${r.prostredi || "-"}</td>
+                                <td>${r.dojem || "-"}</td>
+                                <td>${r.wc || "-"}</td>
+                                <td>${r.cena ? r.cena + " Kč" : "-"}</td>
+                                <td>${r.pocet || 0}</td>
+                            </tr>
+                        `);
+                    }
+                }
+            });
+
+            const allScores = [...pivo, ...obsluha, ...prostredi, ...dojem, ...wc];
+            const totalAvg = avg(allScores);
+
+            return {
+                stop,
+                totalAvg: totalAvg ? Number(totalAvg) : 0,
+                totalAvgText: totalAvg || "–",
+                avgPivo: avg(pivo) || "–",
+                avgObsluha: avg(obsluha) || "–",
+                avgProstredi: avg(prostredi) || "–",
+                avgDojem: avg(dojem) || "–",
+                avgWc: avg(wc) || "–",
+                avgCena: avg(cena) ? Math.round(avg(cena)) + " Kč" : "–",
+                totalPocet: pocet,
+                userRows
+            };
+        });
+
+        // Seřazení podle celkového průměru
+        const sortedStops = [...stopResults].sort((a, b) => b.totalAvg - a.totalAvg);
+        const bestPub = sortedStops.find(s => !s.stop.isTrain && s.totalAvg > 0);
+
+        document.getElementById("globalStats").innerHTML = `
+            <div class="stat-box">
+                <div class="stat-val">${users.length}</div>
+                <div class="stat-lbl">Účastníků</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">${totalBeersAll}</div>
+                <div class="stat-lbl">Vypitých piv</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">${bestPub ? bestPub.totalAvgText : "–"}</div>
+                <div class="stat-lbl">Top skóre</div>
+            </div>
+        `;
+
+        document.getElementById("leaderboardList").innerHTML = sortedStops.map((item, idx) => `
+            <div class="result-card">
+                <div class="result-top">
+                    <div>
+                        <strong>${item.totalAvg > 0 ? `#${idx + 1} ` : ""}${item.stop.name}</strong>
+                    </div>
+                    <div class="result-score">${item.totalAvgText} / 10</div>
+                </div>
+                <div class="metrics-row">
+                    <span class="metric-pill">🍺 Pivo: <b>${item.avgPivo}</b></span>
+                    <span class="metric-pill">🙋 Obsluha: <b>${item.avgObsluha}</b></span>
+                    <span class="metric-pill">🏠 Prostředí: <b>${item.avgProstredi}</b></span>
+                    <span class="metric-pill">⭐ Dojem: <b>${item.avgDojem}</b></span>
+                    <span class="metric-pill">🚽 WC: <b>${item.avgWc}</b></span>
+                    <span class="metric-pill">💰 Cena: <b>${item.avgCena}</b></span>
+                    <span class="metric-pill">🍻 Vypito: <b>${item.totalPocet} ks</b></span>
+                </div>
+                ${item.userRows.length ? `
+                <details>
+                    <summary style="font-size: 0.8rem; color: var(--accent); cursor: pointer; font-weight: 600;">Zobrazit hodnocení jednotlivců (${item.userRows.length})</summary>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Jméno</th>
+                                <th>Pivo</th>
+                                <th>Obsl.</th>
+                                <th>Prostř.</th>
+                                <th>Dojem</th>
+                                <th>WC</th>
+                                <th>Cena</th>
+                                <th>Piv</th>
+                            </tr>
+                        </thead>
+                        <tbody>${item.userRows.join("")}</tbody>
+                    </table>
+                </details>
+                ` : `<div style="font-size: 0.8rem; color: var(--muted);">Zatím nikdo nehodnotil.</div>`}
+            </div>
+        `).join("");
+
+        drinkerStats.sort((a, b) => b.beers - a.beers);
+        document.getElementById("drinkersList").innerHTML = drinkerStats.length ? `
+            <table>
+                <thead><tr><th>Pořadí a jméno</th><th style="text-align:right;">Počet piv</th></tr></thead>
+                <tbody>
+                    ${drinkerStats.map((d, i) => `<tr><td>${i + 1}. ${d.name}</td><td style="text-align:right; font-weight:700;">${d.beers} ks</td></tr>`).join("")}
+                </tbody>
+            </table>
+        ` : "Zatím žádná data.";
+    }
+</script>
+
+</body>
+</html>
