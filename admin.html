@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin – Pochod Prahou</title>
+    <!-- SheetJS pro generování pravého Excel sešitu (.xlsx) s více listy -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary: #1e293b;
@@ -164,12 +166,12 @@
 
         <!-- EXPORT, ZÁLOHA, OBNOVA A SMAZÁNÍ HODNOCENÍ -->
         <div class="card">
-            <h3 style="margin-top: 0;">📊 Export, záloha a čištění dat</h3>
+            <h3 style="margin-top: 0;">📊 Excel export, záloha a čištění dat</h3>
             <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0;">
-                Před smazáním všech hodnocení je vyžadováno stažení zálohy (JSON). Tu lze kdykoli nahrát zpět a obnovit výsledky.
+                Excel export vytvoří sešit s celkovým hodnocením i samostatnými listy pro každého účastníka. Před smazáním všech hodnocení je nutné stáhnout zálohu (JSON).
             </p>
             <div class="btn-group" style="margin-bottom: 12px;">
-                <button class="btn btn-success btn-sm" onclick="exportCsv()">📥 Exportovat statistiky (CSV)</button>
+                <button class="btn btn-success btn-sm" onclick="exportExcelWorkbook()">📗 Exportovat do Excelu (.xlsx)</button>
                 <button class="btn btn-secondary btn-sm" onclick="openPrintSummary()">🖨️ Tiskový přehled</button>
                 <button class="btn btn-secondary btn-sm" onclick="downloadBackupJson()">💾 Stáhnout zálohu (JSON)</button>
                 <button class="btn btn-secondary btn-sm" onclick="document.getElementById('restoreFileInput').click()">📂 Nahrát zálohu (JSON)</button>
@@ -217,7 +219,14 @@
         stops = stopsData
             ? Object.values(stopsData).sort((a, b) => (a.order || 99) - (b.order || 99))
             : [];
-        usersMap = usersData || {};
+
+        const rawUsers = usersData || {};
+        usersMap = {};
+        Object.entries(rawUsers).forEach(([uId, uVal]) => {
+            if (uVal && !uVal.deletedAt) {
+                usersMap[uId] = uVal;
+            }
+        });
 
         renderStops();
         renderUsers();
@@ -268,7 +277,6 @@
         copy[index] = copy[targetIndex];
         copy[targetIndex] = temp;
 
-        // Přepočet pořadí 1..N
         for (let i = 0; i < copy.length; i++) {
             copy[i].order = i + 1;
             await fetch(`${FIREBASE_URL}/stops/${copy[i].id}/order.json`, {
@@ -412,7 +420,14 @@
 
     async function deleteUser(userId, name) {
         if (confirm(`Opravdu chceš smazat uživatele "${name}" včetně všech jeho hodnocení?`)) {
-            await fetch(`${FIREBASE_URL}/users/${userId}.json`, { method: "DELETE" });
+            // Zapíšeme příznak smazání, aby index.html při dalším načtení vyčistil localStorage daného uživatele
+            await fetch(`${FIREBASE_URL}/users/${userId}.json`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    name: name,
+                    deletedAt: new Date().toISOString()
+                })
+            });
             await refreshAdminData();
         }
     }
@@ -507,15 +522,39 @@
         alert("Všechna hodnocení byla vymazána.");
     }
 
-    function exportCsv() {
-        const headers = [
-            "Poradi", "Nazev_zastavky", "Cas", "Typ", "Prumer_celkem", "Prumer_pivo",
-            "Prumer_obsluha", "Prumer_prostredi", "Prumer_dojem", "Prumer_wc",
-            "Prumerna_cena_Kc", "Pocet_piv_celkem", "Utrata_celkem_Kc", "Poznamky"
+    function sanitizeSheetName(name, usedNames) {
+        let clean = String(name || "Ucastnik")
+            .replace(/[\\/?*[\]:]/g, "_")
+            .trim()
+            .slice(0, 28) || "Ucastnik";
+        let candidate = clean;
+        let counter = 2;
+        while (usedNames.has(candidate.toLowerCase())) {
+            const suffix = `_${counter}`;
+            candidate = clean.slice(0, 31 - suffix.length) + suffix;
+            counter++;
+        }
+        usedNames.add(candidate.toLowerCase());
+        return candidate;
+    }
+
+    function exportExcelWorkbook() {
+        if (typeof XLSX === "undefined") {
+            alert("Nepodařilo se načíst knihovnu pro Excel (zkontroluj připojení k internetu).");
+            return;
+        }
+
+        const wb = XLSX.utils.book_new();
+        const users = Object.values(usersMap).filter(u => u && !u.deletedAt);
+
+        // 1. LIST: Celkové hodnocení
+        const summaryRows = [
+            ["Pochod Prahou 21. 11. 2026 – Celkové hodnocení", "", "", "", "", "", "", "", "", "", "", ""],
+            ["Pořadí", "Zastávka", "Čas", "Typ", "Průměr celkem", "Pivo (ø)", "Obsluha (ø)", "Prostředí (ø)", "Dojem (ø)", "WC (ø)", "Cena piva (ø Kč)", "Počet piv", "Útrata (Kč)", "Poznámky"]
         ];
 
-        const users = Object.values(usersMap);
-        const lines = [headers.join(";")];
+        let totalAllBeers = 0;
+        let totalAllSpend = 0;
 
         stops.forEach((s, idx) => {
             let pivo = [], obsluha = [], prostredi = [], dojem = [], wc = [], ceny = [];
@@ -524,11 +563,11 @@
             users.forEach(u => {
                 const r = u.ratings && u.ratings[s.id];
                 if (!r) return;
-                if (r.pivo) pivo.push(r.pivo);
-                if (r.obsluha) obsluha.push(r.obsluha);
-                if (r.prostredi) prostredi.push(r.prostredi);
-                if (r.dojem) dojem.push(r.dojem);
-                if (r.wc) wc.push(r.wc);
+                if (r.pivo) pivo.push(Number(r.pivo));
+                if (r.obsluha) obsluha.push(Number(r.obsluha));
+                if (r.prostredi) prostredi.push(Number(r.prostredi));
+                if (r.dojem) dojem.push(Number(r.dojem));
+                if (r.wc) wc.push(Number(r.wc));
 
                 const price = (r.cena && Number(r.cena) > 0) ? Number(r.cena) : (s.beerPrice ? Number(s.beerPrice) : null);
                 if (price) ceny.push(price);
@@ -542,38 +581,99 @@
                 }
             });
 
+            totalAllBeers += beers;
+            totalAllSpend += spend;
+
             const allScores = [...pivo, ...obsluha, ...prostredi, ...dojem, ...wc];
-            const row = [
-                idx + 1,
-                csvEscape(s.name),
-                csvEscape(s.time || ""),
+            summaryRows.push([
+                s.num || (idx + 1),
+                s.name,
+                s.time || "",
                 s.isTrain ? "Vlak" : "Hospoda",
-                fmtCsvNum(avgArr(allScores)),
-                fmtCsvNum(avgArr(pivo)),
-                fmtCsvNum(avgArr(obsluha)),
-                fmtCsvNum(avgArr(prostredi)),
-                fmtCsvNum(avgArr(dojem)),
-                fmtCsvNum(avgArr(wc)),
+                roundOrEmpty(avgArr(allScores), 2),
+                roundOrEmpty(avgArr(pivo), 1),
+                roundOrEmpty(avgArr(obsluha), 1),
+                roundOrEmpty(avgArr(prostredi), 1),
+                roundOrEmpty(avgArr(dojem), 1),
+                roundOrEmpty(avgArr(wc), 1),
                 ceny.length ? Math.round(avgArr(ceny)) : "",
                 beers,
                 Math.round(spend),
-                csvEscape(notes.join(" | "))
-            ];
-            lines.push(row.join(";"));
+                notes.join(" | ")
+            ]);
         });
 
-        const bom = "\uFEFF";
-        const blob = new Blob([bom + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `pochod-statistiky-${new Date().toISOString().slice(0, 10)}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
+        summaryRows.push([]);
+        summaryRows.push(["", "CELKEM ÚČASTNÍKŮ", users.length, "", "", "", "", "", "", "", "", totalAllBeers, Math.round(totalAllSpend), ""]);
+
+        const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+        wsSummary["!cols"] = [
+            { wch: 8 }, { wch: 30 }, { wch: 8 }, { wch: 10 }, { wch: 14 },
+            { wch: 10 }, { wch: 11 }, { wch: 12 }, { wch: 10 }, { wch: 8 },
+            { wch: 15 }, { wch: 11 }, { wch: 12 }, { wch: 40 }
+        ];
+        XLSX.utils.book_append_sheet(wb, wsSummary, "Celkové hodnocení");
+
+        // 2. DALŠÍ LISTY: Jednotliví uživatelé (struktura blízká papírovému archu)
+        const usedSheetNames = new Set(["celkové hodnocení"]);
+
+        users.forEach(u => {
+            const sheetName = sanitizeSheetName(u.name, usedSheetNames);
+            const ratings = u.ratings || {};
+
+            const userSheetRows = [
+                ["Pochod Prahou 21. 11. 2026", "", "", "", "", "", "", "", "", ""],
+                ["Hodnotil:", u.name || "", "", "", "", "", "", "", "", ""],
+                ["#", "Zastávka", "PIVO", "OBSLUHA", "PROSTŘEDÍ", "CELK. DOJEM", "CENA PIVA", "POČET PIV", "WC", "ÚTRATA (Kč)", "POZNÁMKA"]
+            ];
+
+            let uBeers = 0;
+            let uSpend = 0;
+
+            stops.forEach((s, idx) => {
+                const r = ratings[s.id] || {};
+                const price = (r.cena !== null && r.cena !== undefined && r.cena !== "" && Number(r.cena) > 0)
+                    ? Number(r.cena)
+                    : (s.beerPrice ? Number(s.beerPrice) : "");
+                const beers = r.pocet !== undefined && r.pocet !== null && r.pocet !== "" ? Number(r.pocet) : 0;
+                const rowSpend = (beers > 0 && price !== "") ? Math.round(beers * Number(price)) : 0;
+
+                uBeers += beers;
+                uSpend += rowSpend;
+
+                const labelName = s.time ? `${s.name} (${s.time})` : s.name;
+
+                userSheetRows.push([
+                    s.num || (idx + 1),
+                    labelName,
+                    r.pivo || "",
+                    r.obsluha || "",
+                    r.prostredi || "",
+                    r.dojem || "",
+                    price,
+                    beers,
+                    r.wc || "",
+                    rowSpend,
+                    r.note || ""
+                ]);
+            });
+
+            userSheetRows.push([]);
+            userSheetRows.push(["", "SOUČET", "", "", "", "", "", uBeers, "", uSpend, ""]);
+
+            const wsUser = XLSX.utils.aoa_to_sheet(userSheetRows);
+            wsUser["!cols"] = [
+                { wch: 6 }, { wch: 32 }, { wch: 8 }, { wch: 10 }, { wch: 12 },
+                { wch: 13 }, { wch: 12 }, { wch: 11 }, { wch: 7 }, { wch: 13 }, { wch: 35 }
+            ];
+            XLSX.utils.book_append_sheet(wb, wsUser, sheetName);
+        });
+
+        XLSX.writeFile(wb, `Pochod_Prahou_21_11_2026.xlsx`);
     }
 
     function openPrintSummary() {
-        const users = Object.values(usersMap);
+        const users = Object.values(usersMap).filter(u => u && !u.deletedAt);
         let grandBeers = 0;
         let grandSpend = 0;
 
@@ -631,14 +731,9 @@
         return arr.reduce((a, b) => a + Number(b), 0) / arr.length;
     }
 
-    function fmtCsvNum(v) {
-        if (v === null || v === undefined || Number.isNaN(v)) return "";
-        return v.toFixed(2).replace(".", ",");
-    }
-
-    function csvEscape(val) {
-        const s = String(val).replace(/"/g, '""');
-        return `"${s}"`;
+    function roundOrEmpty(val, dec) {
+        if (val === null || val === undefined || Number.isNaN(Number(val))) return "";
+        return Number(Number(val).toFixed(dec));
     }
 
     function escapeHtml(str) {
