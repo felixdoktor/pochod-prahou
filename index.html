@@ -933,7 +933,7 @@
 
     function createScoreOptions(selectedVal) {
         let html = `<option value="">-- vyber --</option>`;
-        for (let i = 10; i >= 1; i--) {
+        for (let i = 5; i >= 1; i--) {
             html += `<option value="${i}" ${selectedVal == i ? "selected" : ""}>${i} b.</option>`;
         }
         return html;
@@ -976,23 +976,23 @@
                     ${stop.imageUrl ? `<img class="stop-banner-img" src="${escapeAttr(stop.imageUrl)}" alt="${escapeAttr(stop.name)}" onerror="this.style.display='none'">` : ""}
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>🍺 Pivo (1-10)</label>
+                            <label>🍺 Pivo (1-5)</label>
                             <select id="${stop.id}_pivo">${createScoreOptions(r.pivo)}</select>
                         </div>
                         <div class="form-group">
-                            <label>🙋 Obsluha (1-10)</label>
+                            <label>🙋 Obsluha (1-5)</label>
                             <select id="${stop.id}_obsluha">${createScoreOptions(r.obsluha)}</select>
                         </div>
                         <div class="form-group">
-                            <label>🏠 Prostředí (1-10)</label>
+                            <label>🏠 Prostředí (1-5)</label>
                             <select id="${stop.id}_prostredi">${createScoreOptions(r.prostredi)}</select>
                         </div>
                         <div class="form-group">
-                            <label>⭐ Celk. dojem (1-10)</label>
+                            <label>⭐ Celk. dojem (1-5)</label>
                             <select id="${stop.id}_dojem">${createScoreOptions(r.dojem)}</select>
                         </div>
                         <div class="form-group">
-                            <label>🚽 WC (1-10)</label>
+                            <label>🚽 WC (1-5)</label>
                             <select id="${stop.id}_wc">${createScoreOptions(r.wc)}</select>
                         </div>
                         <div class="form-group">
